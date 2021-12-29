@@ -1,10 +1,11 @@
 from __future__ import annotations
 from random import choices, randint
+from tabulate import tabulate
 from typing import Type, TypeVar
 
 from creature import Creature
+from stats import StatKey
 from upkeep import Upkeep
-
 
 G = TypeVar('G')
 
@@ -37,5 +38,9 @@ class CreatureGroup:
                       gold=sum([g.upkeep.gold for g in self.members]))
 
     def print_members(self):
-        for creature in self.members:
-            print(creature.describe())
+        print(tabulate([[creature.name, type(creature).__name__, creature.adjective,
+                         str(creature.stats[StatKey.BEEF].value),
+                         str(creature.stats[StatKey.CUNNING].value),
+                         str(creature.stats[StatKey.QUICKNESS].value),
+                         f"{creature.stats[StatKey.REPUTATION].value:.2f}"] for creature in self.members],
+                       headers=["Name", "Type", "Adjective", "Beef", "Cunning", "Quickness", "Reputation"]))
