@@ -42,7 +42,7 @@ class Horde(CreatureGroup):
         print(f"Base horde strength: {horde_beef}")
         print(f"Base militia strength: {militia_beef}")
 
-        if horde_reputation / len(self.members) > 9:
+        if horde_reputation / len(self.members) > 4.5:
             print(f"\nThe {settlement.name} defense is losing their wits in the face of your famous might.")
             militia_cunning *= 0.7
             print(f"Adjusted horde strength: {horde_beef:.2f}")
