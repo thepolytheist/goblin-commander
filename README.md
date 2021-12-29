@@ -34,5 +34,5 @@ pip3 install -r requirements.txt
 ```
 After that, simply start the game with
 ```commandline
-python3 main.py
+python3 goblincommander/main.py
 ```

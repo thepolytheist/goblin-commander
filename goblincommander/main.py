@@ -1,4 +1,5 @@
 import json
+import os
 import sys
 from enum import Enum
 from random import randint
@@ -80,7 +81,7 @@ def main_menu():
 
 
 def main():
-    with open('goblin_data.json') as f:
+    with open(os.path.join(sys.path[0], 'goblin_data.json')) as f:
         goblin_data = json.loads(f.read())
         Goblin.set_name_options(goblin_data["name_options"])
         Goblin.set_adjective_options(goblin_data["adjective_options"])
