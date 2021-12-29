@@ -43,7 +43,7 @@ def show_game_menu():
 
 
 def show_raid_menu(settlements: list[Settlement]):
-    choices = list(settlements)
+    choices = list(s for s in settlements if not s.defeated and s.militia)
     choices.append("Back")
     return process_single_selection_menu([List("raid_menu_selection",
                                                message="Which settlement would you like to raid?",

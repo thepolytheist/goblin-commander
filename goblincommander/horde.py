@@ -26,6 +26,9 @@ class Horde(CreatureGroup):
         super().__init__(Goblin)
 
     def raid(self, settlement: Settlement) -> Settlement:
+        if settlement.defeated or not settlement.militia:
+            raise ValueError("Raid target is not a valid settlement for raiding.")
+
         # TODO: Move these calculations to CreatureGroup
         horde_beef = sum([m.stats[StatKey.BEEF].value for m in self.members])
         horde_cunning = sum([m.stats[StatKey.CUNNING].value for m in self.members])
