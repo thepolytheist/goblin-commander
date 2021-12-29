@@ -68,6 +68,7 @@ class Horde(CreatureGroup):
         print(f"Adjusted militia strength: {militia_beef:.2f}")
         if horde_beef > militia_beef:
             print(f"\nYour horde defeated the pitiful defenses of {settlement.name}.")
+            settlement.defeated = True
             settlement.militia.members = []
             self.bolster()
         else:

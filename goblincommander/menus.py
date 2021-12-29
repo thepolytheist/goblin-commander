@@ -7,14 +7,18 @@ from settlement import Settlement
 MAIN_MENU_SELECTION = [
     List("main_menu_selection",
          message="Welcome",
-         choices=["NEW", "OPTIONS"],
+         choices=["NEW",
+                  "OPTIONS"],
          carousel=True)
 ]
 
 GAME_MENU_SELECTION = [
     List("game_menu_selection",
          message="What would you like to do, commander?",
-         choices=["View horde", "Raid nearby settlement", "Quit"],
+         choices=["View horde",
+                  "Raid nearby settlement (1 week)",
+                  "Recruit for the horde (2 weeks)",
+                  "Quit"],
          carousel=True)
 ]
 

@@ -3,4 +3,4 @@ class Stash:
 
     def __init__(self):
         self.gold = 100
-        self.food = 1000
+        self.food = 500
