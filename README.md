@@ -1,3 +1,4 @@
+[![CodeQL](https://github.com/thepolytheist/goblin-commander/actions/workflows/codeql-analysis.yml/badge.svg)](https://github.com/thepolytheist/goblin-commander/actions/workflows/codeql-analysis.yml)
 # Goblin Commander
 ```
    __________  ____  __    _____   __
