@@ -44,7 +44,7 @@ def pass_weeks(n: int, dry_run=False) -> bool:
         stash.food -= horde_upkeep.food * n
         state[StateKey.WEEK] += n
         print(f"{n} week(s) have passed. In this time, your horde has required {horde_upkeep.gold * n} gold "
-              f"and {horde_upkeep.food * n} to stay happy.")
+              f"and {horde_upkeep.food * n} food to stay happy.")
     return True
 
 
