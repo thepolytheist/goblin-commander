@@ -2,7 +2,7 @@ import json
 import os
 import sys
 from enum import Enum
-from random import randint
+from random import randint, choices
 from typing import Any
 
 from goblin import Goblin
@@ -10,7 +10,7 @@ from stash import Stash
 from horde import Horde
 from intro import print_title_figure, show_prelude
 from menus import show_game_menu, show_main_menu, show_raid_menu
-from settlement import Settlement
+from settlements import Settlement, NomadEncampment, QuietVillage, BusyTown, BustlingCity, GleamingCastle
 
 
 class StateKey(str, Enum):
@@ -99,7 +99,10 @@ def new_game():
     show_prelude()
 
     # Generate settlements
-    state[StateKey.SETTLEMENTS] = [Settlement() for _ in range(randint(5, 10))]
+    generated_settlement_types = choices([NomadEncampment, QuietVillage, BusyTown, BustlingCity, GleamingCastle],
+                                         cum_weights=[15, 40, 85, 95, 100],
+                                         k=randint(15, 25))
+    state[StateKey.SETTLEMENTS] = [settlement_type() for settlement_type in generated_settlement_types]
 
     # Generate horde
     state[StateKey.HORDE] = Horde.generate_horde()

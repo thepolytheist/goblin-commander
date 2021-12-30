@@ -2,7 +2,7 @@ import sys
 
 from inquirer import List, prompt
 
-from settlement import Settlement
+from settlements import Settlement
 
 MAIN_MENU_SELECTION = [
     List("main_menu_selection",

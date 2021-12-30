@@ -5,7 +5,7 @@ from typing import Optional
 
 from creature_groups import CreatureGroup
 from goblin import Goblin
-from settlement import Settlement
+from settlements import Settlement
 from stats import StatKey
 
 
