@@ -104,6 +104,7 @@ def raid(horde: Horde, settlement: Settlement) -> Settlement:
 
 
 def raid_menu():
+    print(f"Your horde currently has {state[StateKey.HORDE].get_stat_sum(StatKey.BEEF)} Beef.")
     selection = show_raid_menu(state[StateKey.SETTLEMENTS])
 
     match selection:
