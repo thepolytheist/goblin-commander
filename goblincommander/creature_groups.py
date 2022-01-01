@@ -39,6 +39,14 @@ class CreatureGroup:
         return Upkeep(food=sum([g.upkeep.food for g in self.members]),
                       gold=sum([g.upkeep.gold for g in self.members]))
 
+    def get_stat_sum(self, stat_key: StatKey) -> int | float:
+        """Get the sum of a stat for all creatures in the group."""
+        return sum([m.stats[stat_key].value for m in self.members])
+
+    def get_stat_avg(self, stat_key: StatKey) -> float:
+        """Get the mean of a stat for all creatures in the group."""
+        return self.get_stat_sum(stat_key) / len(self.members)
+
     def print_members(self):
         print(tabulate([[creature.name, type(creature).__name__, creature.adjective,
                          str(creature.stats[StatKey.BEEF].value),

@@ -1,7 +1,6 @@
 from random import choice, randint
 
 from creature_groups import Militia
-from creatures import Human
 
 
 class Settlement:
@@ -12,7 +11,8 @@ class Settlement:
     def __init__(self):
         self.name = choice(Settlement.name_options)
         self.defeated = False
-        self.militia: list[Human] = []
+        self.militia: Militia = Militia()
+        self.reward: dict[str, int] = {}
 
     def __str__(self):
         return f"The settlement of {self.name}, guarded by {len(self.militia.members)} men."

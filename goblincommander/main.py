@@ -53,26 +53,23 @@ def raid(horde: Horde, settlement: Settlement) -> Settlement:
     if settlement.defeated or not settlement.militia:
         raise ValueError("Raid target is not a valid settlement for raiding.")
 
-    # TODO: Move these calculations to CreatureGroup
-    horde_beef = sum([m.stats[StatKey.BEEF].value for m in horde.members])
-    horde_cunning = sum([m.stats[StatKey.CUNNING].value for m in horde.members])
-    horde_quickness = sum([m.stats[StatKey.QUICKNESS].value for m in horde.members])
-    horde_reputation = sum([m.stats[StatKey.REPUTATION].value for m in horde.members])
+    # TODO: Refactor this process for testability
 
-    militia_beef = sum([m.stats[StatKey.BEEF].value for m in settlement.militia.members])
-    militia_cunning = sum([m.stats[StatKey.CUNNING].value for m in settlement.militia.members])
-    militia_quickness = sum([m.stats[StatKey.QUICKNESS].value for m in settlement.militia.members])
+    horde_beef = horde.get_stat_sum(StatKey.BEEF)
+
+    militia_beef = settlement.militia.get_stat_sum(StatKey.BEEF)
+    militia_cunning = settlement.militia.get_stat_sum(StatKey.CUNNING)
 
     print(f"Base horde strength: {horde_beef}")
     print(f"Base militia strength: {militia_beef}")
 
-    if horde_reputation / len(horde.members) > 4.5:
+    if horde.get_stat_avg(StatKey.REPUTATION) > 4.5:
         print(f"\nThe {settlement.name} defense is losing their wits in the face of your famous might.")
         militia_cunning *= 0.7
         print(f"Adjusted horde strength: {horde_beef:.2f}")
         print(f"Adjusted militia strength: {militia_beef:.2f}")
 
-    if horde_quickness / len(horde.members) > militia_quickness / len(settlement.militia.members):
+    if horde.get_stat_avg(StatKey.QUICKNESS) > settlement.militia.get_stat_avg(StatKey.QUICKNESS):
         print(f"\nYour speedy horde got the drop on the {settlement.name} defenses! You've caught them unprepared.")
         militia_beef *= 0.9
     else:
@@ -83,7 +80,8 @@ def raid(horde: Horde, settlement: Settlement) -> Settlement:
     print(f"Adjusted horde strength: {horde_beef:.2f}")
     print(f"Adjusted militia strength: {militia_beef:.2f}")
 
-    if horde_cunning / len(horde.members) > militia_cunning / len(settlement.militia.members):
+    # Need to use local militia cunning to allow for modification
+    if horde.get_stat_avg(StatKey.CUNNING) > militia_cunning / len(settlement.militia.members):
         print(f"\nThe {settlement.name} defenses don't seem too bright. Let's show them who's boss.")
         horde_beef *= 1.1
     else:
