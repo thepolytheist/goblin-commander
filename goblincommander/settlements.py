@@ -4,6 +4,7 @@ from termcolor import colored
 
 from creature_groups import Militia
 from creatures import Human
+from stash import Stash
 from stats import StatKey
 
 
@@ -34,10 +35,10 @@ class Settlement:
 
         self.militia = Militia.generate_militia(minimum_size=minimum_militia_size,
                                                 maximum_size=maximum_militia_size)
-        self.reward = {"food": randint(minimum_food_reward_multiplier,
-                                       maximum_food_reward_multiplier) * len(self.militia.members),
-                       "gold": randint(minimum_gold_reward_multiplier,
-                                       maximum_gold_reward_multiplier) * len(self.militia.members)}
+        self.reward = Stash(food=randint(minimum_food_reward_multiplier,
+                                         maximum_food_reward_multiplier) * len(self.militia.members),
+                            gold=randint(minimum_gold_reward_multiplier,
+                                         maximum_gold_reward_multiplier) * len(self.militia.members))
 
     def __str__(self):
         return f"{self.name}, a {self.settlement_type}."
@@ -46,8 +47,8 @@ class Settlement:
         description = f"{self.name}, a {self.settlement_type} guarded by {len(self.militia.members)} men."
 
         if self.scouted:
-            report = f"(Beef: {self.militia.get_stat_sum(StatKey.BEEF)},"\
-                     f" reward: {self.reward['food']} food, {self.reward['gold']} gold)"
+            report = f"(Beef: {self.militia.get_stat_sum(StatKey.BEEF)}," \
+                     f" reward: {self.reward.food} food, {self.reward.gold} gold)"
         else:
             expected_beef = sum([Human.MINIMUM_BEEF, Human.MAXIMUM_BEEF]) / 2 * len(self.militia.members)
             expected_food = sum([self.minimum_food_reward_multiplier,

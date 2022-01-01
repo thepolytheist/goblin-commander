@@ -120,9 +120,8 @@ def raid_menu():
             print(f"You've chosen to raid {s.name}.")
             s = raid(state[StateKey.HORDE], s)
             if s.defeated:
-                print(f"Your successful raid added {s.reward['food']} food and {s.reward['gold']} gold to the stash.")
-                state[StateKey.STASH].food += s.reward["food"]
-                state[StateKey.STASH].gold += s.reward["gold"]
+                print(f"Your successful raid added {s.reward.food} food and {s.reward.gold} gold to the stash.")
+                state[StateKey.STASH].add(s.reward)
 
 
 def scout_menu():
@@ -135,7 +134,7 @@ def scout_menu():
             s.scouted = True
             print(f"Your scouts have gained valuable info about {s.name}:")
             print(f"Beef: {s.militia.get_stat_sum(StatKey.BEEF)}, "
-                  f"reward: {s.reward['food']} food, {s.reward['gold']} gold")
+                  f"reward: {s.reward.food} food, {s.reward.gold} gold")
 
 
 def recruit():
@@ -191,7 +190,7 @@ def new_game():
     print(f"They will require {horde_upkeep.food} food and {horde_upkeep.gold} gold each week to stay happy.\n")
 
     # Add stash
-    state[StateKey.STASH] = Stash()
+    state[StateKey.STASH] = Stash(food=500, gold=100)
 
     # Set in-game week
     state[StateKey.WEEK] = 1
