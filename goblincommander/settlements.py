@@ -1,7 +1,7 @@
 from random import choice, randint
 
-from human import Human
-from militia import Militia
+from creature_groups import Militia
+from creatures import Human
 
 
 class Settlement:
