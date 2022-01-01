@@ -17,6 +17,7 @@ GAME_MENU_SELECTION = [
          message="What would you like to do, commander?",
          choices=["View horde",
                   "Raid nearby settlement (1 week)",
+                  "Scout nearby settlement (1 week)",
                   "Recruit for the horde (2 weeks)",
                   "Quit"],
          carousel=True)
@@ -47,5 +48,15 @@ def show_raid_menu(settlements: list[Settlement]):
     choices.append("Back")
     return process_single_selection_menu([List("raid_menu_selection",
                                                message="Which settlement would you like to raid?",
+                                               choices=choices,
+                                               carousel=True)])
+
+
+def show_scout_menu(settlements: list[Settlement]):
+    choices = list((s.get_raid_menu_description(), s) for s in settlements
+                   if not s.defeated and s.militia and not s.scouted)
+    choices.append("Back")
+    return process_single_selection_menu([List("scout_menu_selection",
+                                               message="Which settlement would you like to scout?",
                                                choices=choices,
                                                carousel=True)])

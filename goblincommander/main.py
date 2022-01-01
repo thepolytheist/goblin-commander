@@ -8,7 +8,7 @@ from typing import Any
 from creature_groups import Horde
 from creatures import Goblin
 from intro import print_title_figure, show_prelude
-from menus import show_game_menu, show_main_menu, show_raid_menu
+from menus import show_game_menu, show_main_menu, show_raid_menu, show_scout_menu
 from settlements import Settlement, NomadEncampment, QuietVillage, BusyTown, BustlingCity, GleamingCastle
 from stash import Stash
 from stats import StatKey
@@ -73,16 +73,23 @@ def raid(horde: Horde, settlement: Settlement) -> Settlement:
         print(f"\nYour speedy horde got the drop on the {settlement.name} defenses! You've caught them unprepared.")
         militia_beef *= 0.9
     else:
-        print(f"\nUh oh. The {settlement.name} defenses rallied their forces in record time."
-              " You've got your work cut out for you.")
-        horde_beef *= 0.9
+        if settlement.scouted:
+            print(f"\nThe {settlement.name} militia rallied quickly,"
+                  " but your scouts found a critical flaw in their defenses. Not to worry.")
+        else:
+            print(f"\nUh oh. The {settlement.name} defenses rallied their forces in record time."
+                  " You've got your work cut out for you.")
+            horde_beef *= 0.9
 
     print(f"Adjusted horde strength: {horde_beef:.2f}")
     print(f"Adjusted militia strength: {militia_beef:.2f}")
 
     # Need to use local militia cunning to allow for modification
-    if horde.get_stat_avg(StatKey.CUNNING) > militia_cunning / len(settlement.militia.members):
-        print(f"\nThe {settlement.name} defenses don't seem too bright. Let's show them who's boss.")
+    if settlement.scouted or horde.get_stat_avg(StatKey.CUNNING) > militia_cunning / len(settlement.militia.members):
+        if settlement.scouted:
+            print(f"\nThe information from your scouts has given you the tactical edge.")
+        else:
+            print(f"\nThe {settlement.name} defenses don't seem too bright. Let's show them who's boss.")
         horde_beef *= 1.1
     else:
         print(f"\nHmm. These men defending {settlement.name} are smarter than we thought."
@@ -118,6 +125,19 @@ def raid_menu():
                 state[StateKey.STASH].gold += s.reward["gold"]
 
 
+def scout_menu():
+    print(f"Your horde currently has {state[StateKey.HORDE].get_stat_sum(StatKey.BEEF)} Beef.")
+    selection = show_scout_menu(state[StateKey.SETTLEMENTS])
+
+    match selection:
+        case Settlement() as s:
+            pass_weeks(1)
+            s.scouted = True
+            print(f"Your scouts have gained valuable info about {s.name}:")
+            print(f"Beef: {s.militia.get_stat_sum(StatKey.BEEF)}, "
+                  f"reward: {s.reward['food']} food, {s.reward['gold']} gold")
+
+
 def recruit():
     # TODO: Base on commander reputation
     print(f"With your charisma and notoriety, you've managed to recruit more goblins.")
@@ -139,6 +159,10 @@ def game_menu():
             # This needs to be a check only since there's a submenu
             if pass_weeks(1, dry_run=True):
                 raid_menu()
+        case "Scout nearby settlement (1 week)":
+            # This needs to be a check only since there's a submenu
+            if pass_weeks(1, dry_run=True):
+                scout_menu()
         case "Recruit for the horde (2 weeks)":
             if pass_weeks(2):
                 recruit()

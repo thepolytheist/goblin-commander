@@ -4,6 +4,7 @@ from termcolor import colored
 
 from creature_groups import Militia
 from creatures import Human
+from stats import StatKey
 
 
 class Settlement:
@@ -21,6 +22,7 @@ class Settlement:
         self.name = choice(Settlement.name_options)
         self.settlement_type = settlement_type
         self.defeated = False
+        self.scouted = False
 
         self.minimum_militia_size = minimum_militia_size
         self.maximum_militia_size = maximum_militia_size
@@ -41,14 +43,20 @@ class Settlement:
         return f"{self.name}, a {self.settlement_type}."
 
     def get_raid_menu_description(self):
-        expected_beef = sum([Human.MINIMUM_BEEF, Human.MAXIMUM_BEEF]) / 2 * len(self.militia.members)
-        expected_food = sum([self.minimum_food_reward_multiplier,
-                             self.maximum_food_reward_multiplier]) / 2 * len(self.militia.members)
-        expected_gold = sum([self.minimum_gold_reward_multiplier,
-                             self.maximum_gold_reward_multiplier]) / 2 * len(self.militia.members)
-        return f"{self.name}, a {self.settlement_type} guarded by {len(self.militia.members)} men. " +\
-               colored(f"(expected Beef: {expected_beef}, expected reward: {expected_food} food, {expected_gold} gold)",
-                       attrs=['dark'])
+        description = f"{self.name}, a {self.settlement_type} guarded by {len(self.militia.members)} men."
+
+        if self.scouted:
+            report = f"(Beef: {self.militia.get_stat_sum(StatKey.BEEF)},"\
+                     f" reward: {self.reward['food']} food, {self.reward['gold']} gold)"
+        else:
+            expected_beef = sum([Human.MINIMUM_BEEF, Human.MAXIMUM_BEEF]) / 2 * len(self.militia.members)
+            expected_food = sum([self.minimum_food_reward_multiplier,
+                                 self.maximum_food_reward_multiplier]) / 2 * len(self.militia.members)
+            expected_gold = sum([self.minimum_gold_reward_multiplier,
+                                 self.maximum_gold_reward_multiplier]) / 2 * len(self.militia.members)
+            report = f"(expected Beef: {expected_beef}, expected reward: {expected_food} food, {expected_gold} gold)"
+
+        return f"{description} {colored(report, attrs=['dark'])}"
 
 
 class NomadEncampment(Settlement):
