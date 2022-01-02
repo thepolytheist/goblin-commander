@@ -1,17 +1,19 @@
 import sys
 from enum import Enum
-from random import randint, choices
+from random import randint, choices, choice
 from typing import Any
 
 from creature_groups import Horde
+from creatures import Goblin, GoblinCommander
 from intro import print_title_figure, show_prelude
-from menus import show_game_menu, show_main_menu, show_raid_menu, show_scout_menu
+from menus import show_game_menu, show_main_menu, show_raid_menu, show_scout_menu, show_name_menu, show_name_input
 from settlements import Settlement, NomadEncampment, QuietVillage, BusyTown, BustlingCity, GleamingCastle
 from stash import Stash
 from stats import StatKey
 
 
 class StateKey(str, Enum):
+    COMMANDER = "commander"
     HORDE = "horde"
     SETTLEMENTS = "settlements"
     STASH = "stash"
@@ -138,7 +140,8 @@ def scout_menu():
 
 def recruit():
     # TODO: Base on commander reputation
-    print(f"With your charisma and notoriety, you've managed to recruit more goblins.")
+    print(f"The name {state[StateKey.COMMANDER].name} is known far and wide. "
+          "With your charisma and notoriety, you've managed to recruit more goblins.")
     state[StateKey.HORDE].bolster()
 
 
@@ -173,8 +176,29 @@ def game_menu():
     game_menu()
 
 
+def name_menu():
+    selection = show_name_menu()
+
+    random_name = choice(Goblin.name_options)
+
+    match selection:
+        case "enter":
+            name = show_name_input(random_name)
+        case "random":
+            name = random_name
+
+    # TODO: Add title selection menu
+
+    state[StateKey.COMMANDER] = GoblinCommander(name, "")
+
+    print("All right, so you will forever be known as "
+          f"{state[StateKey.COMMANDER].name} the {state[StateKey.COMMANDER].adjective}.")
+
+
 def new_game():
     show_prelude()
+
+    name_menu()
 
     # Generate settlements
     generated_settlement_types = choices([NomadEncampment, QuietVillage, BusyTown, BustlingCity, GleamingCastle],

@@ -2,6 +2,7 @@ import json
 import os
 import sys
 from random import choice, randint
+from typing import Optional
 
 from stats import StatKey, Stat, BeefStat, CunningStat, QuicknessStat, ReputationStat
 from upkeep import Upkeep
@@ -61,18 +62,42 @@ class Goblin(Creature):
                 StatKey.QUICKNESS: QuicknessStat(randint(Goblin.MINIMUM_QUICKNESS, Goblin.MAXIMUM_QUICKNESS)),
                 StatKey.REPUTATION: ReputationStat(.5 * randint(1, 10))}
 
-    def __init__(self):
+    def __init__(self, name: Optional[str] = None,
+                 adjective: Optional[str] = None,
+                 stats: Optional[dict] = None,
+                 upkeep: Optional[Upkeep] = None):
         if not Goblin.name_options or not Goblin.adjective_options:
             raise RuntimeError("You forgot to set Goblin data, idiot.")
 
-        super().__init__(choice(Goblin.name_options),
-                         choice(Goblin.adjective_options),
-                         Goblin.generate_stats(),
-                         Upkeep(Goblin.FOOD_UPKEEP, Goblin.GOLD_UPKEEP))
+        if not name:
+            name = choice(Goblin.name_options)
+
+        if not adjective:
+            adjective = choice(Goblin.adjective_options)
+
+        if not stats:
+            stats = Goblin.generate_stats()
+
+        if not upkeep:
+            upkeep = Upkeep(Goblin.FOOD_UPKEEP, Goblin.GOLD_UPKEEP)
+
+        super().__init__(name, adjective, stats, upkeep)
 
     def describe(self) -> str:
         """Gets a basic description string of the Goblin."""
         return super().describe("goblin")
+
+
+class GoblinCommander(Goblin):
+
+    def __init__(self, name: str, title: Optional[str]):
+        if not title:
+            title = "Brave"
+
+        # TODO: Base on title
+        stats = Goblin.generate_stats()
+
+        super().__init__(name, title, stats, Upkeep(0, 0))
 
 
 class Human(Creature):
