@@ -90,12 +90,23 @@ class Goblin(Creature):
 
 class GoblinCommander(Goblin):
 
-    def __init__(self, name: str, title: Optional[str]):
-        if not title:
-            title = "Brave"
+    def __init__(self, name: str, title: str):
+        stats = {
+            StatKey.BEEF: BeefStat(3),
+            StatKey.CUNNING: CunningStat(8),
+            StatKey.QUICKNESS: QuicknessStat(5),
+            StatKey.REPUTATION: ReputationStat(3.0)
+        }
 
-        # TODO: Base on title
-        stats = Goblin.generate_stats()
+        match title:
+            case "Skullcracker":
+                stats[StatKey.BEEF].value += 5
+            case "Brainy":
+                stats[StatKey.CUNNING].value += 5
+            case "Swift":
+                stats[StatKey.QUICKNESS].value += 5
+            case "Notorious":
+                stats[StatKey.REPUTATION].value += 2.0
 
         super().__init__(name, title, stats, Upkeep(0, 0))
 

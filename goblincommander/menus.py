@@ -16,7 +16,17 @@ NAME_MENU_SELECTION = [
     List("name_menu_select",
          message="...That said, what's your name again? Should I just come up with something?",
          choices=[("I already have a name! It's... (enter name)", "enter"),
-                  ("Why don't you tell me what you want to call me. (random name)", "random")])
+                  ("Why don't you tell me what you want to call me? (random name)", "random")])
+]
+
+TITLE_MENU_SELECTION = [
+    List("title_menu_select",
+         message="And what would you say you're known for?",
+         choices=[("I could break a man's skull with my pinky finger. (+5 Beef)", "Skullcracker"),
+                  ("Ain't no defenses that are gonna outwit me. (+5 Cunning)", "Brainy"),
+                  ("Once I beat my own grandpa in a race to get some soup. (+5 Quickness)", "Swift"),
+                  ("I'm known for pulling out teeth when people ask me too many question. (+2.0 Reputation)",
+                   "Notorious")])
 ]
 
 GAME_MENU_SELECTION = [
@@ -54,6 +64,10 @@ def show_name_input(random_name: str):
     return prompt([Text("name_input",
                         "Why don't you write your name down here so I don't forget again?",
                         random_name)])["name_input"]
+
+
+def show_title_menu():
+    return process_single_selection_menu(TITLE_MENU_SELECTION)
 
 
 def show_game_menu():
