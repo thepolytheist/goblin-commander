@@ -3,6 +3,8 @@ from enum import Enum
 from random import randint, choices, choice
 from typing import Any
 
+from termcolor import colored
+
 from creature_groups import Horde
 from creatures import Goblin, GoblinCommander
 from intro import print_title_figure, show_prelude
@@ -62,52 +64,59 @@ def raid(horde: Horde, settlement: Settlement) -> Settlement:
 
     print(settlement.description)
 
-    print(f"Base horde strength: {horde_beef}")
-    print(f"Base militia strength: {militia_beef}")
+    print(f"\nBase horde Beef: {horde_beef:.2f}")
+    print(f"Base militia Beef: {militia_beef:.2f}\n")
 
     if horde.get_stat_avg(StatKey.REPUTATION) > 4.5:
-        print(f"\nThe {settlement.name} defense is losing their wits in the face of your famous might.")
+        print(f"[REP] ", end="")
+        modifier_string = colored(f"(-{militia_cunning * 0.3:.2f} militia Cunning)", "green")
         militia_cunning *= 0.7
-        print(f"Adjusted horde strength: {horde_beef:.2f}")
-        print(f"Adjusted militia strength: {militia_beef:.2f}")
+        print(f"The {settlement.name} defense is losing their wits in the face of your famous might. {modifier_string}")
 
+    print("[QCK] ", end="")
     if horde.get_stat_avg(StatKey.QUICKNESS) > settlement.militia.get_stat_avg(StatKey.QUICKNESS):
-        print(f"\nYour speedy horde got the drop on the {settlement.name} defenses! You've caught them unprepared.")
+        modifier_string = colored(f"(-{militia_beef * 0.1:.2f} militia Beef)", "green")
+        print(f"Your speedy horde got the drop on the {settlement.name} defenses! You've caught them unprepared. "
+              f"{modifier_string}")
         militia_beef *= 0.9
     else:
         if settlement.scouted:
-            print(f"\nThe {settlement.name} militia rallied quickly,"
-                  " but your scouts found a critical flaw in their defenses. Not to worry.")
+            print(f"The {settlement.name} militia rallied quickly,"
+                  " but your scouts found a critical flaw in their defenses. Not to worry. (No change)")
         else:
-            print(f"\nUh oh. The {settlement.name} defenses rallied their forces in record time."
-                  " You've got your work cut out for you.")
+            modifier_string = colored(f"(-{horde_beef * 0.1:.2f} horde Beef)", "red")
+            print(f"Uh oh. The {settlement.name} defenses rallied their forces in record time."
+                  f" You've got your work cut out for you. {modifier_string}")
             horde_beef *= 0.9
 
-    print(f"Adjusted horde strength: {horde_beef:.2f}")
-    print(f"Adjusted militia strength: {militia_beef:.2f}")
-
     # Need to use local militia cunning to allow for modification
+    print("[CUN] ", end="")
     if settlement.scouted or horde.get_stat_avg(StatKey.CUNNING) > militia_cunning / len(settlement.militia.members):
+        modifier_string = colored(f"(+{horde_beef * 0.1:.2f} horde Beef)", "green")
         if settlement.scouted:
-            print(f"\nThe information from your scouts has given you the tactical edge.")
+            print(f"The information from your scouts has given you the tactical edge. {modifier_string}")
         else:
-            print(f"\nThe {settlement.name} defenses don't seem too bright. Let's show them who's boss.")
+            print(f"The {settlement.name} defenses don't seem too bright. Let's show them who's boss. "
+                  f"{modifier_string}")
         horde_beef *= 1.1
     else:
-        print(f"\nHmm. These men defending {settlement.name} are smarter than we thought."
-              " Best keep our heads on straight.")
+        modifier_string = colored(f"(+{militia_beef * 0.1:.2f} militia Beef)", "red")
+        print(f"Hmm. These men defending {settlement.name} are smarter than we thought."
+              f" Best keep our heads on straight. {modifier_string}")
         militia_beef *= 1.1
 
-    print(f"Adjusted horde strength: {horde_beef:.2f}")
-    print(f"Adjusted militia strength: {militia_beef:.2f}")
+    print(f"\nAdjusted horde Beef: {horde_beef:.2f}")
+    print(f"Adjusted militia Beef: {militia_beef:.2f}\n")
     if horde_beef > militia_beef:
-        print(f"\nYour horde defeated the pitiful defenses of {settlement.name}.")
+        print(colored("VICTORY", "green"))
+        print(f"Your horde defeated the pitiful defenses of {settlement.name}.\n")
         settlement.defeated = True
         settlement.militia.members = []
         horde.bolster(1, 3)
     else:
-        print(f"\nYour pitiful horde was defeated by the defenses of {settlement.name}. "
-              "Half of them didn't make it back.")
+        print(colored("DEFEAT", "red"))
+        print(f"Your pitiful horde was defeated by the defenses of {settlement.name}. "
+              "Half of them didn't make it back.\n")
         horde.members = [m for i, m in enumerate(horde.members) if i % 2 == 0 or m.is_commander]
     return settlement
 
@@ -119,6 +128,7 @@ def raid_menu():
     match selection:
         case Settlement() as s:
             pass_weeks(1)
+            print(colored("\nRAID", "blue"))
             print(f"You've chosen to raid {s.name}.")
             s = raid(state[StateKey.HORDE], s)
             if s.defeated:
