@@ -160,3 +160,89 @@ class Human(Creature):
     def describe(self) -> str:
         """Gets a basic description string of the Human."""
         return super().describe("human")
+
+
+class Ogre(Creature):
+    """Model representing an individual Ogre in the horde."""
+
+    # Ogre stat configuration
+    MINIMUM_BEEF = 6
+    MAXIMUM_BEEF = 10
+    MINIMUM_CUNNING = 1
+    MAXIMUM_CUNNING = 3
+    MINIMUM_QUICKNESS = 2
+    MAXIMUM_QUICKNESS = 4
+
+    FOOD_UPKEEP = 12
+    GOLD_UPKEEP = 4
+
+    # Load Ogre descriptive data
+    with open(os.path.join(sys.path[0], 'ogre_data.json')) as f:
+        ogre_data = json.loads(f.read())
+        name_options = ogre_data["name_options"]
+        adjective_options = ogre_data["adjective_options"]
+        del ogre_data
+
+        # TODO: Turn this into module method
+        @staticmethod
+        def generate_stats():
+            return {StatKey.BEEF: BeefStat(randint(Ogre.MINIMUM_BEEF, Ogre.MAXIMUM_BEEF)),
+                    StatKey.CUNNING: CunningStat(randint(Ogre.MINIMUM_CUNNING, Ogre.MAXIMUM_CUNNING)),
+                    StatKey.QUICKNESS: QuicknessStat(randint(Ogre.MINIMUM_QUICKNESS, Ogre.MAXIMUM_QUICKNESS)),
+                    StatKey.REPUTATION: ReputationStat(.5 * randint(1, 10))}
+
+        def __init__(self):
+            if not Ogre.name_options or not Ogre.adjective_options:
+                raise RuntimeError("You forgot to set Ogre data, idiot.")
+
+            super().__init__(choice(Ogre.name_options), 
+                             choice(Ogre.adjective_options), 
+                             Ogre.generate_stats(), 
+                             Upkeep(Ogre.FOOD_UPKEEP, Ogre.GOLD_UPKEEP))
+
+        def describe(self) -> str:
+            """Gets a basic description string of the Ogre."""
+            return super().describe("ogre")
+        
+        
+class Orc(Creature):
+    """Model representing an individual Orc in the horde."""
+
+    # Orc stat configuration
+    MINIMUM_BEEF = 4
+    MAXIMUM_BEEF = 7
+    MINIMUM_CUNNING = 1
+    MAXIMUM_CUNNING = 6
+    MINIMUM_QUICKNESS = 2
+    MAXIMUM_QUICKNESS = 6
+
+    FOOD_UPKEEP = 8
+    GOLD_UPKEEP = 2
+
+    # Load Orc descriptive data
+    with open(os.path.join(sys.path[0], 'orc_data.json')) as f:
+        orc_data = json.loads(f.read())
+        name_options = orc_data["name_options"]
+        adjective_options = orc_data["adjective_options"]
+        del orc_data
+
+        # TODO: Turn this into module method
+        @staticmethod
+        def generate_stats():
+            return {StatKey.BEEF: BeefStat(randint(Orc.MINIMUM_BEEF, Orc.MAXIMUM_BEEF)),
+                    StatKey.CUNNING: CunningStat(randint(Orc.MINIMUM_CUNNING, Orc.MAXIMUM_CUNNING)),
+                    StatKey.QUICKNESS: QuicknessStat(randint(Orc.MINIMUM_QUICKNESS, Orc.MAXIMUM_QUICKNESS)),
+                    StatKey.REPUTATION: ReputationStat(.5 * randint(1, 10))}
+
+        def __init__(self):
+            if not Orc.name_options or not Orc.adjective_options:
+                raise RuntimeError("You forgot to set Orc data, idiot.")
+
+            super().__init__(choice(Orc.name_options), 
+                             choice(Orc.adjective_options), 
+                             Orc.generate_stats(), 
+                             Upkeep(Orc.FOOD_UPKEEP, Orc.GOLD_UPKEEP))
+
+        def describe(self) -> str:
+            """Gets a basic description string of the Orc."""
+            return super().describe("orc")
