@@ -32,11 +32,11 @@ TITLE_MENU_SELECTION = [
 GAME_MENU_SELECTION = [
     List("game_menu_selection",
          message="What would you like to do, commander?",
-         choices=["View horde",
-                  "Raid nearby settlement (1 week)",
-                  "Scout nearby settlement (1 week)",
-                  "Recruit for the horde (2 weeks)",
-                  "Quit"],
+         choices=[("View horde", "view_horde"),
+                  ("Raid nearby settlement (1 week)", "raid"),
+                  ("Scout nearby settlement (1 week)", "scout"),
+                  ("Recruit for the horde (2 weeks)", "recruit_goblins"),
+                  ("Quit", "quit")],
          carousel=True)
 ]
 
