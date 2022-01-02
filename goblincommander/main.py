@@ -151,24 +151,25 @@ def game_menu():
     show_stash()
     selection = show_game_menu()
 
-    # Manage horde
-    # Raid nearby settlement
-    #     Nomads, village, town, city, castle
     match selection:
-        case "View horde":
-            state[StateKey.HORDE].print_members()
-        case "Raid nearby settlement (1 week)":
+        case "raid":
             # This needs to be a check only since there's a submenu
             if pass_weeks(1, dry_run=True):
                 raid_menu()
-        case "Scout nearby settlement (1 week)":
+        case "scout":
             # This needs to be a check only since there's a submenu
             if pass_weeks(1, dry_run=True):
                 scout_menu()
-        case "Recruit for the horde (2 weeks)":
+        case "recruit_goblins":
             if pass_weeks(2):
                 recruit()
-        case "Quit":
+        case "view_horde":
+            state[StateKey.HORDE].print_members()
+        case "view_profile":
+            state[StateKey.COMMANDER].print_profile()
+            print()
+            show_stash()
+        case "quit":
             print("Goodbye, commander.")
             sys.exit()
         case _:

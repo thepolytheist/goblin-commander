@@ -4,6 +4,8 @@ import sys
 from random import choice, randint
 from typing import Optional
 
+from tabulate import tabulate
+
 from stats import StatKey, Stat, BeefStat, CunningStat, QuicknessStat, ReputationStat
 from upkeep import Upkeep
 
@@ -109,6 +111,14 @@ class GoblinCommander(Goblin):
                 stats[StatKey.REPUTATION].value += 2.0
 
         super().__init__(name, title, stats, Upkeep(0, 0))
+
+    def print_profile(self):
+        print(tabulate([[self.name, self.adjective,
+                        str(self.stats[StatKey.BEEF].value),
+                        str(self.stats[StatKey.CUNNING].value),
+                        str(self.stats[StatKey.QUICKNESS].value),
+                        f"{self.stats[StatKey.REPUTATION].value:.2f}"]],
+                       headers=["Name", "Title", "Beef", "Cunning", "Quickness", "Reputation"]))
 
 
 class Human(Creature):
