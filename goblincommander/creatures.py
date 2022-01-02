@@ -13,11 +13,12 @@ from upkeep import Upkeep
 class Creature:
     """Base class representing any creature in a horde"""
 
-    def __init__(self, name: str, adjective: str, stats: dict[StatKey, Stat], upkeep: Upkeep):
+    def __init__(self, name: str, adjective: str, stats: dict[StatKey, Stat], upkeep: Upkeep, is_commander=False):
         self.name = name
         self.adjective = adjective
         self.stats = stats
         self.upkeep = upkeep
+        self.is_commander = is_commander
 
     def describe(self, creature_type: str = "creature") -> str:
         """Gets a basic description string of the creature."""
@@ -67,7 +68,8 @@ class Goblin(Creature):
     def __init__(self, name: Optional[str] = None,
                  adjective: Optional[str] = None,
                  stats: Optional[dict] = None,
-                 upkeep: Optional[Upkeep] = None):
+                 upkeep: Optional[Upkeep] = None,
+                 is_commander=False):
         if not Goblin.name_options or not Goblin.adjective_options:
             raise RuntimeError("You forgot to set Goblin data, idiot.")
 
@@ -83,7 +85,7 @@ class Goblin(Creature):
         if not upkeep:
             upkeep = Upkeep(Goblin.FOOD_UPKEEP, Goblin.GOLD_UPKEEP)
 
-        super().__init__(name, adjective, stats, upkeep)
+        super().__init__(name, adjective, stats, upkeep, is_commander)
 
     def describe(self) -> str:
         """Gets a basic description string of the Goblin."""
@@ -110,14 +112,14 @@ class GoblinCommander(Goblin):
             case "Notorious":
                 stats[StatKey.REPUTATION].value += 2.0
 
-        super().__init__(name, title, stats, Upkeep(0, 0))
+        super().__init__(name, title, stats, Upkeep(0, 0), True)
 
     def print_profile(self):
         print(tabulate([[self.name, self.adjective,
-                        str(self.stats[StatKey.BEEF].value),
-                        str(self.stats[StatKey.CUNNING].value),
-                        str(self.stats[StatKey.QUICKNESS].value),
-                        f"{self.stats[StatKey.REPUTATION].value:.2f}"]],
+                         str(self.stats[StatKey.BEEF].value),
+                         str(self.stats[StatKey.CUNNING].value),
+                         str(self.stats[StatKey.QUICKNESS].value),
+                         f"{self.stats[StatKey.REPUTATION].value:.2f}"]],
                        headers=["Name", "Title", "Beef", "Cunning", "Quickness", "Reputation"]))
 
 

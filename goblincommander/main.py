@@ -108,7 +108,7 @@ def raid(horde: Horde, settlement: Settlement) -> Settlement:
     else:
         print(f"\nYour pitiful horde was defeated by the defenses of {settlement.name}. "
               "Half of them didn't make it back.")
-        horde.members = [m for i, m in enumerate(horde.members) if i % 2 == 0]
+        horde.members = [m for i, m in enumerate(horde.members) if i % 2 == 0 or m.is_commander]
     return settlement
 
 
@@ -211,7 +211,7 @@ def new_game():
     state[StateKey.SETTLEMENTS] = [settlement_type() for settlement_type in generated_settlement_types]
 
     # Generate horde
-    state[StateKey.HORDE] = Horde.generate_horde()
+    state[StateKey.HORDE] = Horde.generate_horde(commander=state[StateKey.COMMANDER])
     print(f"You have attracted a stunning horde of {len(state[StateKey.HORDE].members)} goblin(s).\n")
     horde_upkeep = state[StateKey.HORDE].get_upkeep()
     print(f"They will require {horde_upkeep.food} food and {horde_upkeep.gold} gold each week to stay happy.\n")

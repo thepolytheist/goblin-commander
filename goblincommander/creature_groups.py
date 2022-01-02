@@ -20,7 +20,8 @@ class CreatureGroup:
                  creature_types,
                  minimum_size: int,
                  maximum_size: int,
-                 type_weights=None) -> G:
+                 type_weights=None,
+                 commander=None) -> G:
         # Validate range specification, coercing if necessary
         if minimum_size > maximum_size:
             minimum_size, maximum_size = maximum_size, minimum_size
@@ -30,9 +31,11 @@ class CreatureGroup:
         group = creature_group_cls()
         generated_creature_types = choices(creature_types, type_weights, k=randint(minimum_size, maximum_size))
         group.members = [creature_type() for creature_type in generated_creature_types]
+        if commander:
+            group.members.append(commander)
         return group
 
-    def __init__(self, creature_type: Type[Creature]):
+    def __init__(self, creature_type: Type[Creature], commander: Optional[Creature] = None):
         self.members: list[creature_type] = []
 
     def get_upkeep(self) -> Upkeep:
@@ -52,7 +55,8 @@ class CreatureGroup:
                          str(creature.stats[StatKey.BEEF].value),
                          str(creature.stats[StatKey.CUNNING].value),
                          str(creature.stats[StatKey.QUICKNESS].value),
-                         f"{creature.stats[StatKey.REPUTATION].value:.2f}"] for creature in self.members],
+                         f"{creature.stats[StatKey.REPUTATION].value:.2f}"] for creature in self.members
+                        if not creature.is_commander],
                        headers=["Name", "Type", "Adjective", "Beef", "Cunning", "Quickness", "Reputation"]))
 
 
@@ -60,14 +64,16 @@ class Horde(CreatureGroup):
     """Model representing a collection of Goblins"""
 
     @staticmethod
-    def generate_horde(minimum_size: Optional[int] = None, maximum_size: Optional[int] = None) -> Horde:
+    def generate_horde(minimum_size: Optional[int] = None,
+                       maximum_size: Optional[int] = None,
+                       commander: Optional[Creature] = None) -> Horde:
         """Returns a new Horde with a number of Goblins between minimum_size and maximum_size."""
         if minimum_size is None:
             minimum_size = 1
         if maximum_size is None:
             maximum_size = 10
 
-        return CreatureGroup.generate(Horde, [Goblin], minimum_size, maximum_size)
+        return CreatureGroup.generate(Horde, [Goblin], minimum_size, maximum_size, commander=commander)
 
     def __init__(self):
         super().__init__(Goblin)
