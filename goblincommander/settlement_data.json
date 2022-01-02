@@ -1,0 +1,113 @@
+{
+  "nomad encampment": {
+    "name_options": [
+      "Whistling Bluff",
+      "Knife Canyon",
+      "Prairie Junction"
+    ],
+    "description_options": [
+      "The wind whips through the air as you approach. These people are too far from civilization. Let their supplies feed the horde.",
+      "A painted cow ambles away from the horde as you creep closer. Some of the nomads are still asleep in their cowhide homes.",
+      "A road leads into the camp. More than one tribe has passed through here. Today's unlucky lot raise their knives as you approach."
+    ]
+  },
+  "quiet village": {
+    "name_options": [
+      "Cherry Hill",
+      "Emeryville",
+      "Lysander's Grove",
+      "Old Evergreen",
+      "Ashville",
+      "Waterville",
+      "Rosemill",
+      "Krosey Village",
+      "Eastward Pass"
+    ],
+    "description_options": [
+      "Your horde slips through the trees toward the bottom of the valley where a quiet stream cuts through the village. The saw at the mill is quiet. Soon, someone will have eyes on you, and the fun will begin.",
+      "Probably not much of value here. Smoke swirls away from three chimneys. The snow chills your feet. The air is thin up here. Time to see what this village is made of."
+    ]
+  },
+  "busy town": {
+    "name_options": [
+      "King's Watch",
+      "Calmarnock",
+      "Llaneybyder",
+      "Aberstwyth",
+      "Wintervale",
+      "Transmere",
+      "Stanlow",
+      "Arkmunster",
+      "Porthaethwidge",
+      "Aethelney",
+      "Alderrdeen",
+      "Millstone",
+      "Cardended",
+      "Whitebridge",
+      "Northon",
+      "Damerel",
+      "Drumnacanvy",
+      "Penrith",
+      "Wombourne",
+      "Windrip"
+    ],
+    "description_options": [
+      "A town like this only begins to make a name for itself with some luck. With your arrival, their luck has run out. Let's take what's ours."
+    ]
+  },
+  "bustling city": {
+    "name_options": [
+      "King's Watch",
+      "Calmarnock",
+      "Llaneybyder",
+      "Aberstwyth",
+      "Wintervale",
+      "Transmere",
+      "Stanlow",
+      "Arkmunster",
+      "Porthaethwidge",
+      "Aethelney",
+      "Alderrdeen",
+      "Millstone",
+      "Cardended",
+      "Whitebridge",
+      "Northon",
+      "Damerel",
+      "Drumnacanvy",
+      "Penrith",
+      "Wombourne",
+      "Windrip"
+    ],
+    "description_options": [
+      "Merchant caravans and small troops have scattered alike as they spied your oncoming horde. These people with their food and money have no idea what's coming."
+    ]
+  },
+  "gleaming castle": {
+    "name_options": [
+      "Cottenhorn Citadel",
+      "Tarville Hold",
+      "Cordington Hold",
+      "Armathain Hold",
+      "Stowe Castle",
+      "Corftey Fort",
+      "Mirador Fort",
+      "Staedbergh Stronghold",
+      "Harmpton Castle",
+      "Burneside Stronghold",
+      "Mizeareigh Stronghold",
+      "Earnside Hold",
+      "Taergoria Keep",
+      "Dockerly Palace",
+      "Warlton Hold",
+      "Shaldorn Keep",
+      "Cowle Stronghold",
+      "Rundhey Keep",
+      "Ernmore Hold",
+      "Bangleswade Keep"
+    ],
+    "description_options": [
+      "These ancient walls have seen time and blood beyond measure. Arrow slits look down on the approach, ready to rain hell on your horde. This will truly be a battle.",
+      "Atop a salty cliff, the fortress sits looking down the winding slope toward the mainland. Kings and queens think they are safe in this keep. Unimaginable treasures wait within. It will all be ours."
+    ]
+  }
+}

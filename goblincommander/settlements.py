@@ -1,3 +1,6 @@
+import json
+import os
+import sys
 from random import choice, randint
 
 from termcolor import colored
@@ -11,7 +14,8 @@ from stats import StatKey
 class Settlement:
     """Model representing a human settlement"""
 
-    name_options = ["Settleburg", "Settletopia", "Metropolisettle", "Camesettle"]
+    with open(os.path.join(sys.path[0], 'settlement_data.json')) as f:
+        settlement_config: dict[str, dict] = json.loads(f.read())
 
     def __init__(self, settlement_type: str,
                  minimum_militia_size: int,
@@ -20,7 +24,8 @@ class Settlement:
                  maximum_food_reward_multiplier: int,
                  minimum_gold_reward_multiplier: int,
                  maximum_gold_reward_multiplier: int):
-        self.name = choice(Settlement.name_options)
+        self.name = choice(Settlement.settlement_config[settlement_type]["name_options"])
+        self.description = choice(Settlement.settlement_config[settlement_type]["description_options"])
         self.settlement_type = settlement_type
         self.defeated = False
         self.scouted = False

@@ -57,6 +57,8 @@ def raid(horde: Horde, settlement: Settlement) -> Settlement:
     militia_beef = settlement.militia.get_stat_sum(StatKey.BEEF)
     militia_cunning = settlement.militia.get_stat_sum(StatKey.CUNNING)
 
+    print(settlement.description)
+
     print(f"Base horde strength: {horde_beef}")
     print(f"Base militia strength: {militia_beef}")
 
