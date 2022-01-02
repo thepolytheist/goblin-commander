@@ -1,12 +1,9 @@
-import json
-import os
 import sys
 from enum import Enum
 from random import randint, choices
 from typing import Any
 
 from creature_groups import Horde
-from creatures import Goblin
 from intro import print_title_figure, show_prelude
 from menus import show_game_menu, show_main_menu, show_raid_menu, show_scout_menu
 from settlements import Settlement, NomadEncampment, QuietVillage, BusyTown, BustlingCity, GleamingCastle
@@ -59,6 +56,8 @@ def raid(horde: Horde, settlement: Settlement) -> Settlement:
 
     militia_beef = settlement.militia.get_stat_sum(StatKey.BEEF)
     militia_cunning = settlement.militia.get_stat_sum(StatKey.CUNNING)
+
+    print(settlement.description)
 
     print(f"Base horde strength: {horde_beef}")
     print(f"Base militia strength: {militia_beef}")
@@ -211,13 +210,6 @@ def main_menu():
 
 
 def main():
-    with open(os.path.join(sys.path[0], 'goblin_data.json')) as f:
-        goblin_data = json.loads(f.read())
-        Goblin.set_name_options(goblin_data["name_options"])
-        Goblin.set_adjective_options(goblin_data["adjective_options"])
-
-    # TODO: Load data for other creatures
-
     print_title_figure("Goblin Commander")
 
     main_menu()
