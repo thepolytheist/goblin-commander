@@ -78,8 +78,8 @@ class Horde(CreatureGroup):
     def __init__(self):
         super().__init__(Goblin)
 
-    def bolster(self):
-        num_new_goblins = randint(1, 3)
+    def bolster(self, minimum: int, maximum: int):
+        num_new_goblins = randint(minimum, maximum)
         print(f"You've attracted {num_new_goblins} new goblins!")
         new_goblins = [Goblin() for _ in range(num_new_goblins)]
         self.members.extend(new_goblins)

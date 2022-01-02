@@ -143,7 +143,7 @@ def recruit():
     # TODO: Base on commander reputation
     print(f"The name {state[StateKey.COMMANDER].name} is known far and wide. "
           "With your charisma and notoriety, you've managed to recruit more goblins.")
-    state[StateKey.HORDE].bolster()
+    state[StateKey.HORDE].bolster(1, 3)
 
 
 def game_menu():
