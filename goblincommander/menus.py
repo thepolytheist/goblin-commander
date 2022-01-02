@@ -1,6 +1,6 @@
 import sys
 
-from inquirer import List, prompt
+from inquirer import List, prompt, Text
 
 from settlements import Settlement
 
@@ -10,6 +10,13 @@ MAIN_MENU_SELECTION = [
          choices=["NEW",
                   "OPTIONS"],
          carousel=True)
+]
+
+NAME_MENU_SELECTION = [
+    List("name_menu_select",
+         message="...That said, what's your name again? Should I just come up with something?",
+         choices=[("I already have a name! It's... (enter name)", "enter"),
+                  ("Why don't you tell me what you want to call me. (random name)", "random")])
 ]
 
 GAME_MENU_SELECTION = [
@@ -37,6 +44,16 @@ def process_single_selection_menu(selection_config: list[List]):
 
 def show_main_menu():
     return process_single_selection_menu(MAIN_MENU_SELECTION)
+
+
+def show_name_menu():
+    return process_single_selection_menu(NAME_MENU_SELECTION)
+
+
+def show_name_input(random_name: str):
+    return prompt([Text("name_input",
+                        "Why don't you write your name down here so I don't forget again?",
+                        random_name)])["name_input"]
 
 
 def show_game_menu():
