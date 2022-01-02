@@ -1,3 +1,6 @@
+import json
+import os
+import sys
 from random import choice, randint
 
 from stats import StatKey, Stat, BeefStat, CunningStat, QuicknessStat, ReputationStat
@@ -43,18 +46,14 @@ class Goblin(Creature):
     FOOD_UPKEEP = 5
     GOLD_UPKEEP = 1
 
-    # Goblin descriptive data
-    name_options = []
-    adjective_options = []
+    # Load Goblin descriptive data
+    with open(os.path.join(sys.path[0], 'goblin_data.json')) as f:
+        goblin_data = json.loads(f.read())
+        name_options = goblin_data["name_options"]
+        adjective_options = goblin_data["adjective_options"]
+        del goblin_data
 
-    @staticmethod
-    def set_name_options(names):
-        Goblin.name_options = names
-
-    @staticmethod
-    def set_adjective_options(adjectives):
-        Goblin.adjective_options = adjectives
-
+    # TODO: Turn this into module method
     @staticmethod
     def generate_stats():
         return {StatKey.BEEF: BeefStat(randint(Goblin.MINIMUM_BEEF, Goblin.MAXIMUM_BEEF)),
@@ -93,14 +92,6 @@ class Human(Creature):
     # Human descriptive data
     name_options = ["Paul", "Harold", "Jimbo", "Willy", "Mark"]
     adjective_options = ["hairy", "stringy", "bold", "loud", "smelly", "pretty"]
-
-    @staticmethod
-    def set_name_options(names):
-        Human.name_options = names
-
-    @staticmethod
-    def set_adjective_options(adjectives):
-        Human.adjective_options = adjectives
 
     @staticmethod
     def generate_stats():
