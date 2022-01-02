@@ -6,7 +6,8 @@ from typing import Any
 from creature_groups import Horde
 from creatures import Goblin, GoblinCommander
 from intro import print_title_figure, show_prelude
-from menus import show_game_menu, show_main_menu, show_raid_menu, show_scout_menu, show_name_menu, show_name_input
+from menus import show_game_menu, show_main_menu, show_raid_menu, show_scout_menu, show_name_menu, show_name_input, \
+    show_title_menu
 from settlements import Settlement, NomadEncampment, QuietVillage, BusyTown, BustlingCity, GleamingCastle
 from stash import Stash
 from stats import StatKey
@@ -177,19 +178,21 @@ def game_menu():
 
 
 def name_menu():
-    selection = show_name_menu()
+    name_selection = show_name_menu()
 
     random_name = choice(Goblin.name_options)
 
-    match selection:
+    match name_selection:
         case "enter":
             name = show_name_input(random_name)
         case "random":
             name = random_name
 
-    # TODO: Add title selection menu
+    print(f"\nAll right. {name} it is.")
 
-    state[StateKey.COMMANDER] = GoblinCommander(name, "")
+    title_selection = show_title_menu()
+
+    state[StateKey.COMMANDER] = GoblinCommander(name, title_selection)
 
     print("All right, so you will forever be known as "
           f"{state[StateKey.COMMANDER].name} the {state[StateKey.COMMANDER].adjective}.")
