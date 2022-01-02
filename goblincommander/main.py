@@ -104,7 +104,7 @@ def raid(horde: Horde, settlement: Settlement) -> Settlement:
         print(f"\nYour horde defeated the pitiful defenses of {settlement.name}.")
         settlement.defeated = True
         settlement.militia.members = []
-        horde.bolster()
+        horde.bolster(1, 3)
     else:
         print(f"\nYour pitiful horde was defeated by the defenses of {settlement.name}. "
               "Half of them didn't make it back.")
@@ -139,11 +139,32 @@ def scout_menu():
                   f"reward: {s.reward.food} food, {s.reward.gold} gold")
 
 
-def recruit():
-    # TODO: Base on commander reputation
-    print(f"The name {state[StateKey.COMMANDER].name} is known far and wide. "
-          "With your charisma and notoriety, you've managed to recruit more goblins.")
-    state[StateKey.HORDE].bolster()
+def recruit(commander: GoblinCommander):
+    reputation = commander.stats[StatKey.REPUTATION].value
+    if reputation == 5.0:
+        print(f"No goblin is more feared or admired than {commander.name} the {commander.adjective}. "
+              "Other creatures are running to join your famous horde.")
+        state[StateKey.HORDE].bolster(4, 5)
+    elif reputation > 4.0:
+        print(f"The name {state[StateKey.COMMANDER].name} is known far and wide. "
+              "With your charisma and notoriety, you've managed to recruit more creatures.")
+        state[StateKey.HORDE].bolster(3, 4)
+    elif reputation > 3.0:
+        print(f"Creatures in the area are beginning to recognize the name {commander.name}. "
+              "They don't need a lot of convincing to come fight for you.")
+        state[StateKey.HORDE].bolster(2, 4)
+    elif reputation > 2.0:
+        print(f"No one's heard of {commander.name} the {commander.adjective}, "
+              "but there are still some creatures looking for work.")
+        state[StateKey.HORDE].bolster(1, 3)
+    elif reputation > 1.0:
+        print(f"{commander.name} the {commander.adjective} is known more for struggling and losing than anything else."
+              " Regardless, you might be able to convince some creatures to follow you.")
+        state[StateKey.HORDE].bolster(1, 2)
+    else:
+        # reputation < 1.0
+        print(f"Good luck finding anyone who wants to join the unlucky horde of {commander.name} the Fallible.")
+        state[StateKey.HORDE].bolster(0, 1)
 
 
 def game_menu():
@@ -162,7 +183,7 @@ def game_menu():
                 scout_menu()
         case "recruit_goblins":
             if pass_weeks(2):
-                recruit()
+                recruit(state[StateKey.COMMANDER])
         case "view_horde":
             state[StateKey.HORDE].print_members()
         case "view_profile":

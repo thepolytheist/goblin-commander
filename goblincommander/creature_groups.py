@@ -78,12 +78,15 @@ class Horde(CreatureGroup):
     def __init__(self):
         super().__init__(Goblin)
 
-    def bolster(self):
-        num_new_goblins = randint(1, 3)
-        print(f"You've attracted {num_new_goblins} new goblins!")
-        new_goblins = [Goblin() for _ in range(num_new_goblins)]
-        self.members.extend(new_goblins)
-        print(f"Your horde now boasts {len(self.members)} in its ranks!")
+    def bolster(self, minimum: int, maximum: int):
+        num_new_goblins = randint(minimum, maximum)
+        if num_new_goblins > 0:
+            print(f"You've attracted {num_new_goblins} new goblins!")
+            new_goblins = [Goblin() for _ in range(num_new_goblins)]
+            self.members.extend(new_goblins)
+            print(f"Your horde now boasts {len(self.members)} in its ranks!")
+        else:
+            print("Seems no one showed up today. What a shame.")
 
 
 class Militia(CreatureGroup):
