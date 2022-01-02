@@ -152,8 +152,6 @@ def game_menu():
     selection = show_game_menu()
 
     match selection:
-        case "view_horde":
-            state[StateKey.HORDE].print_members()
         case "raid":
             # This needs to be a check only since there's a submenu
             if pass_weeks(1, dry_run=True):
@@ -165,6 +163,12 @@ def game_menu():
         case "recruit_goblins":
             if pass_weeks(2):
                 recruit()
+        case "view_horde":
+            state[StateKey.HORDE].print_members()
+        case "view_profile":
+            state[StateKey.COMMANDER].print_profile()
+            print()
+            show_stash()
         case "quit":
             print("Goodbye, commander.")
             sys.exit()
