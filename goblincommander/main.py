@@ -1,3 +1,4 @@
+import os
 import sys
 from enum import Enum
 from random import randint, choices, choice
@@ -24,6 +25,11 @@ class StateKey(str, Enum):
 
 
 state: dict[StateKey, Any] = {}
+
+
+def clear():
+    """Pushes old content off the top of the terminal."""
+    os.system('cls' if os.name == 'nt' else 'clear')
 
 
 def show_stash():
@@ -109,14 +115,14 @@ def raid(horde: Horde, settlement: Settlement) -> Settlement:
     print(f"Adjusted militia Beef: {militia_beef:.2f}\n")
     if horde_beef > militia_beef:
         print(colored("VICTORY", "green"))
-        print(f"Your horde defeated the pitiful defenses of {settlement.name}.\n")
+        print(f"Your horde defeated the pitiful defenses of {settlement.name}.")
         settlement.defeated = True
         settlement.militia.members = []
         horde.bolster(1, 3)
     else:
         print(colored("DEFEAT", "red"))
         print(f"Your pitiful horde was defeated by the defenses of {settlement.name}. "
-              "Half of them didn't make it back.\n")
+              "Half of them didn't make it back.")
         horde.members = [m for i, m in enumerate(horde.members) if i % 2 == 0 or m.is_commander]
     return settlement
 
@@ -128,6 +134,7 @@ def raid_menu():
     match selection:
         case Settlement() as s:
             pass_weeks(1)
+            clear()
             print(colored("\nRAID", "blue"))
             print(f"You've chosen to raid {s.name}.")
             s = raid(state[StateKey.HORDE], s)
@@ -143,6 +150,8 @@ def scout_menu():
     match selection:
         case Settlement() as s:
             pass_weeks(1)
+            clear()
+            print(colored("\nSCOUT", "blue"))
             s.scouted = True
             print(f"Your scouts have gained valuable info about {s.name}:")
             print(f"Beef: {s.militia.get_stat_sum(StatKey.BEEF)}, "
@@ -151,6 +160,7 @@ def scout_menu():
 
 def recruit(commander: GoblinCommander):
     reputation = commander.stats[StatKey.REPUTATION].value
+    print()
     if reputation == 5.0:
         print(f"No goblin is more feared or admired than {commander.name} the {commander.adjective}. "
               "Other creatures are running to join your famous horde.")
@@ -192,11 +202,15 @@ def game_menu():
             if pass_weeks(1, dry_run=True):
                 scout_menu()
         case "recruit_goblins":
+            clear()
+            print(colored("RECRUIT", "blue"))
             if pass_weeks(2):
                 recruit(state[StateKey.COMMANDER])
         case "view_horde":
+            clear()
             state[StateKey.HORDE].print_members()
         case "view_profile":
+            clear()
             state[StateKey.COMMANDER].print_profile()
             print()
             show_stash()
@@ -226,11 +240,15 @@ def name_menu():
 
     state[StateKey.COMMANDER] = GoblinCommander(name, title_selection)
 
+    clear()
+
     print("All right, so you will forever be known as "
           f"{state[StateKey.COMMANDER].name} the {state[StateKey.COMMANDER].adjective}.")
 
 
 def new_game():
+    clear()
+
     show_prelude()
 
     name_menu()
@@ -243,7 +261,8 @@ def new_game():
 
     # Generate horde
     state[StateKey.HORDE] = Horde.generate_horde(commander=state[StateKey.COMMANDER])
-    print(f"You have attracted a stunning horde of {len(state[StateKey.HORDE].members)} goblin(s).\n")
+    # Subtract 1 from the count here to ignore the commander
+    print(f"\nYou have attracted a stunning horde of {len(state[StateKey.HORDE].members) - 1} goblin(s).")
     horde_upkeep = state[StateKey.HORDE].get_upkeep()
     print(f"They will require {horde_upkeep.food} food and {horde_upkeep.gold} gold each week to stay happy.\n")
 
@@ -269,6 +288,7 @@ def main_menu():
 
 
 def main():
+    clear()
     print_title_figure("Goblin Commander")
 
     main_menu()
