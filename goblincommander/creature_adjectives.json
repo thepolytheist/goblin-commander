@@ -9,6 +9,6 @@
     "popular": ["popular", "notorious", "communal", "friendly"],
     "unpopular": ["unknown", "unpopular"],
     "rounded": ["dangerous", "balanced", "well-rounded", "multi-talented"],
-    "useless": [],
+    "useless": ["useless", "waste"],
     "himbo": ["dense", "thick"]
 }
