@@ -1,0 +1,14 @@
+{
+    "generic": ["alcoholic", "naked", "crazy", "angry", "squat", "fat", "hairy", "bow-legged", "slimy", "hungry"],
+    "strong": ["strong", "broad-chested", "beefy", "statuesque", "burly", "hunky", "ripped", "fit"],
+    "weak": ["weak", "wimpy", "limp", "flaccid"],
+    "smart": ["brainy", "cheeky", "smart", "wise", "quick-witted", "bright", "brilliant"],
+    "dumb": ["dumb", "stupid", "thick-headed", "idiotic"],
+    "fast": ["fast", "quick", "speedy", "rapid", "greased", "slippery", "electric"],
+    "slow": ["slow"],
+    "popular": ["popular", "notorious", "communal", "friendly"],
+    "unpopular": ["unknown", "unpopular"],
+    "rounded": ["dangerous", "balanced", "well-rounded", "multi-talented"],
+    "useless": [],
+    "himbo": ["dense", "thick"]
+}
