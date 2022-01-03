@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from random import choices, randint
+from random import choices, randint, sample
 from typing import Type, TypeVar, Optional
 
 from tabulate import tabulate
@@ -51,13 +51,20 @@ class CreatureGroup:
         return self.get_stat_sum(stat_key) / len(self.members)
 
     def print_members(self):
-        print(tabulate([[creature.name, type(creature).__name__, creature.adjective,
-                         str(creature.stats[StatKey.BEEF].value),
-                         str(creature.stats[StatKey.CUNNING].value),
-                         str(creature.stats[StatKey.QUICKNESS].value),
-                         f"{creature.stats[StatKey.REPUTATION].value:.2f}"] for creature in self.members
-                        if not creature.is_commander],
+        row_data = [[creature.name, type(creature).__name__, creature.adjective,
+                     str(creature.stats[StatKey.BEEF].value),
+                     str(creature.stats[StatKey.CUNNING].value),
+                     str(creature.stats[StatKey.QUICKNESS].value),
+                     f"{creature.stats[StatKey.REPUTATION].value:.2f}"] for creature in self.members
+                    if not creature.is_commander]
+        row_data.append(["AVERAGE", "", "",
+                         f"{self.get_stat_avg(StatKey.BEEF):3.2f}",
+                         f"{self.get_stat_avg(StatKey.CUNNING):3.2f}",
+                         f"{self.get_stat_avg(StatKey.QUICKNESS):3.2f}",
+                         f"{self.get_stat_avg(StatKey.REPUTATION):3.2f}"])
+        print(tabulate(row_data,
                        headers=["Name", "Type", "Adjective", "Beef", "Cunning", "Quickness", "Reputation"]))
+        print("\n*AVERAGE includes your stats")
 
 
 class Horde(CreatureGroup):
@@ -78,15 +85,35 @@ class Horde(CreatureGroup):
     def __init__(self):
         super().__init__(Goblin)
 
-    def bolster(self, minimum: int, maximum: int):
-        num_new_goblins = randint(minimum, maximum)
-        if num_new_goblins > 0:
-            print(f"\nYou've attracted {num_new_goblins} new goblins!")
-            new_goblins = [Goblin() for _ in range(num_new_goblins)]
-            self.members.extend(new_goblins)
+    def bolster(self, creature_type: Type[Creature], minimum: int, maximum: int):
+        """
+        Adds a number of creatures between the minimum and maximum values of
+        the creature type provided.
+        """
+        num_new_creatures = randint(minimum, maximum)
+        if num_new_creatures > 0:
+            name = creature_type.__name__.lower()
+            print(f"\nYou've attracted {num_new_creatures} new {name}s!")
+            new_creatures = [creature_type() for _ in range(num_new_creatures)]
+            self.members.extend(new_creatures)
             print(f"Your horde now boasts {len(self.members)} in its ranks!")
         else:
             print("\nSeems no one showed up today. What a shame.")
+
+    def cull(self, creature_types: list[Type[Creature]], minimum: int, maximum: int):
+        """
+        Removes a number of creatures between the minimum and maximum values based
+        on the candidate creature types provided.
+        """
+        num_to_cull = min(randint(minimum, maximum), len(self.members))
+        candidate_creatures = [m for m in self.members if type(m) in creature_types and not m.is_commander]
+        if num_to_cull <= 0 or len(candidate_creatures) == 0:
+            print("\nLooks like everyone survived today.")
+        else:
+            num_to_cull = min(len(candidate_creatures), num_to_cull)
+            print(f"\n{num_to_cull} of your horde didn't make it back alive.")
+            for c in sample(candidate_creatures, k=num_to_cull):
+                self.members.remove(c)
 
 
 class Militia(CreatureGroup):
