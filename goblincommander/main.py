@@ -7,7 +7,7 @@ from typing import Any
 from termcolor import colored
 
 from creature_groups import Horde
-from creatures import Goblin, GoblinCommander
+from creatures import Goblin, GoblinCommander, Ogre, Orc
 from intro import print_title_figure, show_prelude
 from menus import show_game_menu, show_main_menu, show_raid_menu, show_scout_menu, show_name_menu, show_name_input, \
     show_title_menu
@@ -43,9 +43,9 @@ def pass_weeks(n: int, dry_run=False) -> bool:
 
     if horde_upkeep.gold * n > stash.gold or horde_upkeep.food * n > stash.food:
         print("You will need a bigger stash for that. "
-              f"Maintaining your horde for {n} week(s) will require {horde_upkeep.gold * n} gold "
-              f"and {horde_upkeep.food * n} food.\n"
-              f"Current stash: {stash.gold} gold, {stash.food} food.")
+              f"Maintaining your horde for {n} week(s) will require {horde_upkeep.food * n} food "
+              f"and {horde_upkeep.gold * n} gold.\n")
+        show_stash()
         return False
 
     if not dry_run:
@@ -118,12 +118,12 @@ def raid(horde: Horde, settlement: Settlement) -> Settlement:
         print(f"Your horde defeated the pitiful defenses of {settlement.name}.")
         settlement.defeated = True
         settlement.militia.members = []
-        horde.bolster(1, 3)
+        horde.bolster(Goblin, 1, 3)
     else:
         print(colored("DEFEAT", "red"))
         print(f"Your pitiful horde was defeated by the defenses of {settlement.name}. "
-              "Half of them didn't make it back.")
-        horde.members = [m for i, m in enumerate(horde.members) if i % 2 == 0 or m.is_commander]
+              "Some of them didn't make it back.")
+        horde.cull([Goblin, Ogre, Orc], 3, 5)
     return settlement
 
 
@@ -158,33 +158,48 @@ def scout_menu():
                   f"reward: {s.reward.food} food, {s.reward.gold} gold")
 
 
-def recruit(commander: GoblinCommander):
+def recruit_goblins(commander: GoblinCommander, horde: Horde):
     reputation = commander.stats[StatKey.REPUTATION].value
     print()
     if reputation == 5.0:
         print(f"No goblin is more feared or admired than {commander.name} the {commander.adjective}. "
               "Other creatures are running to join your famous horde.")
-        state[StateKey.HORDE].bolster(4, 5)
+        horde.bolster(Goblin, 4, 5)
     elif reputation > 4.0:
-        print(f"The name {state[StateKey.COMMANDER].name} is known far and wide. "
+        print(f"The name {commander.name} is known far and wide. "
               "With your charisma and notoriety, you've managed to recruit more creatures.")
-        state[StateKey.HORDE].bolster(3, 4)
+        horde.bolster(Goblin, 3, 4)
     elif reputation > 3.0:
         print(f"Creatures in the area are beginning to recognize the name {commander.name}. "
               "They don't need a lot of convincing to come fight for you.")
-        state[StateKey.HORDE].bolster(2, 4)
+        horde.bolster(Goblin, 2, 4)
     elif reputation > 2.0:
         print(f"No one's heard of {commander.name} the {commander.adjective}, "
               "but there are still some creatures looking for work.")
-        state[StateKey.HORDE].bolster(1, 3)
+        horde.bolster(Goblin, 1, 3)
     elif reputation > 1.0:
         print(f"{commander.name} the {commander.adjective} is known more for struggling and losing than anything else."
               " Regardless, you might be able to convince some creatures to follow you.")
-        state[StateKey.HORDE].bolster(1, 2)
+        horde.bolster(Goblin, 1, 2)
     else:
         # reputation < 1.0
         print(f"Good luck finding anyone who wants to join the unlucky horde of {commander.name} the Fallible.")
-        state[StateKey.HORDE].bolster(0, 1)
+        horde.bolster(Goblin, 0, 1)
+
+
+def recruit_ogres(horde: Horde):
+    if horde.get_stat_avg(StatKey.QUICKNESS) > 6:
+        print("Your goblins reported communication difficulties, "
+              "but they convinced some ogres to return with them regardless.")
+    else:
+        print("Your goblins brought back ogres for the horde, but not without facing danger.")
+        horde.cull([Goblin], 3, 5)
+    horde.bolster(Ogre, 2, 3)
+
+
+def recruit_orcs(horde: Horde):
+    print("It took some time, but you've managed to convince an orc raiding party to join your horde.")
+    horde.bolster(Orc, 4, 6)
 
 
 def game_menu():
@@ -205,7 +220,17 @@ def game_menu():
             clear()
             print(colored("RECRUIT", "blue"))
             if pass_weeks(2):
-                recruit(state[StateKey.COMMANDER])
+                recruit_goblins(state[StateKey.COMMANDER], state[StateKey.HORDE])
+        case "recruit_ogres":
+            clear()
+            print(colored("RECRUIT", "blue"))
+            if pass_weeks(2):
+                recruit_ogres(state[StateKey.HORDE])
+        case "recruit_orcs":
+            clear()
+            print(colored("RECRUIT", "blue"))
+            if pass_weeks(4):
+                recruit_orcs(state[StateKey.HORDE])
         case "view_horde":
             clear()
             state[StateKey.HORDE].print_members()
