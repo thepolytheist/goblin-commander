@@ -55,16 +55,21 @@ class CreatureGroup:
                      str(creature.stats[StatKey.BEEF].value),
                      str(creature.stats[StatKey.CUNNING].value),
                      str(creature.stats[StatKey.QUICKNESS].value),
-                     f"{creature.stats[StatKey.REPUTATION].value:.2f}"] for creature in self.members
+                     f"{creature.stats[StatKey.REPUTATION].value:3.2f}"] for creature in self.members
                     if not creature.is_commander]
-        row_data.append(["AVERAGE", "", "",
-                         f"{self.get_stat_avg(StatKey.BEEF):3.2f}",
-                         f"{self.get_stat_avg(StatKey.CUNNING):3.2f}",
-                         f"{self.get_stat_avg(StatKey.QUICKNESS):3.2f}",
-                         f"{self.get_stat_avg(StatKey.REPUTATION):3.2f}"])
         print(tabulate(row_data,
-                       headers=["Name", "Type", "Adjective", "Beef", "Cunning", "Quickness", "Reputation"]))
-        print("\n*AVERAGE includes your stats")
+                       headers=["Name", "Type", "Adjective", "Beef", "Cunning", "Quickness", "Reputation"],
+                       floatfmt=("", "", "", ".0f", ".0f", ".0f", "3.2f")))
+        print()
+        print(tabulate([["Averages",
+                         str(self.get_stat_avg(StatKey.BEEF)),
+                         str(self.get_stat_avg(StatKey.CUNNING)),
+                         str(self.get_stat_avg(StatKey.QUICKNESS)),
+                         str(self.get_stat_avg(StatKey.REPUTATION))]],
+                       headers=["", "Beef", "Cunning", "Quickness", "Reputation"],
+                       tablefmt="plain",
+                       floatfmt="3.2f"))
+        print("\n*Averages include your stats")
 
 
 class Horde(CreatureGroup):
