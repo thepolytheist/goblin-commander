@@ -212,8 +212,9 @@ class GoblinCommander(Goblin):
                          str(self.stats[StatKey.BEEF].value),
                          str(self.stats[StatKey.CUNNING].value),
                          str(self.stats[StatKey.QUICKNESS].value),
-                         f"{self.stats[StatKey.REPUTATION].value:.2f}"]],
-                       headers=["Name", "Title", "Beef", "Cunning", "Quickness", "Reputation"]))
+                         str(self.stats[StatKey.REPUTATION].value)]],
+                       headers=["Name", "Title", "Beef", "Cunning", "Quickness", "Reputation"],
+                       floatfmt=("", "", "", "", "", "3.2f")))
 
 
 class Human(Creature):
