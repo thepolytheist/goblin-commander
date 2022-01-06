@@ -2,7 +2,7 @@ import sys
 
 from inquirer import List, prompt, Text
 
-from settlements import Settlement
+from goblincommander.settlements import Settlement
 
 MAIN_MENU_SELECTION = [
     List("main_menu_selection",

@@ -1,17 +1,16 @@
 import json
-import os
-import sys
+from importlib.resources import files
 from random import choice, randint
 from typing import Optional
 
 from tabulate import tabulate
 
-from stats import StatKey, Stat, BeefStat, CunningStat, QuicknessStat, ReputationStat
-from upkeep import Upkeep
+import goblincommander.resources
+from goblincommander.stats import StatKey, Stat, BeefStat, CunningStat, QuicknessStat, ReputationStat
+from goblincommander.upkeep import Upkeep
 
 # Load creature adjectives from file
-with open(os.path.join(sys.path[0], 'creature_adjectives.json')) as f:
-    adjectives = json.loads(f.read())
+adjectives = json.loads(files(goblincommander.resources).joinpath('creature_adjectives.json').read_text())
 
 
 def get_stat_rating(actual: int | float, minimum: int, maximum: int) -> float:
@@ -139,10 +138,9 @@ class Goblin(Creature):
     GOLD_UPKEEP = 1
 
     # Load Goblin descriptive data
-    with open(os.path.join(sys.path[0], 'goblin_data.json')) as f:
-        goblin_data = json.loads(f.read())
-        name_options = goblin_data["name_options"]
-        del goblin_data
+    goblin_data = json.loads(files(goblincommander.resources).joinpath('goblin_data.json').read_text())
+    name_options = goblin_data["name_options"]
+    del goblin_data
 
     # TODO: Turn this into module method
     @staticmethod
@@ -278,10 +276,9 @@ class Ogre(Creature):
     GOLD_UPKEEP = 4
 
     # Load Ogre descriptive data
-    with open(os.path.join(sys.path[0], 'ogre_data.json')) as f:
-        ogre_data = json.loads(f.read())
-        name_options = ogre_data["name_options"]
-        del ogre_data
+    ogre_data = json.loads(files(goblincommander.resources).joinpath('ogre_data.json').read_text())
+    name_options = ogre_data["name_options"]
+    del ogre_data
 
     # TODO: Turn this into module method
     @staticmethod
@@ -328,10 +325,9 @@ class Orc(Creature):
     GOLD_UPKEEP = 2
 
     # Load Orc descriptive data
-    with open(os.path.join(sys.path[0], 'orc_data.json')) as f:
-        orc_data = json.loads(f.read())
-        name_options = orc_data["name_options"]
-        del orc_data
+    orc_data = json.loads(files(goblincommander.resources).joinpath('orc_data.json').read_text())
+    name_options = orc_data["name_options"]
+    del orc_data
 
     # TODO: Turn this into module method
     @staticmethod

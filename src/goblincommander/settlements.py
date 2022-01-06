@@ -1,21 +1,21 @@
 import json
-import os
-import sys
+from importlib.resources import files
 from random import choice, randint
 
 from termcolor import colored
 
-from creature_groups import Militia
-from creatures import Human
-from stash import Stash
-from stats import StatKey
+import goblincommander.resources
+from goblincommander.creature_groups import Militia
+from goblincommander.creatures import Human
+from goblincommander.stash import Stash
+from goblincommander.stats import StatKey
 
 
 class Settlement:
     """Model representing a human settlement"""
 
-    with open(os.path.join(sys.path[0], 'settlement_data.json')) as f:
-        settlement_config: dict[str, dict] = json.loads(f.read())
+    settlement_config: dict[str, dict] = json.loads(
+        files(goblincommander.resources).joinpath('settlement_data.json').read_text())
 
     def __init__(self, settlement_type: str,
                  minimum_militia_size: int,

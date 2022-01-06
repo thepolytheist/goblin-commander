@@ -6,14 +6,15 @@ from typing import Any
 
 from termcolor import colored
 
-from creature_groups import Horde
-from creatures import Goblin, GoblinCommander, Ogre, Orc
-from intro import print_title_figure, show_prelude
-from menus import show_game_menu, show_main_menu, show_raid_menu, show_scout_menu, show_name_menu, show_name_input, \
-    show_title_menu
-from settlements import Settlement, NomadEncampment, QuietVillage, BusyTown, BustlingCity, GleamingCastle
-from stash import Stash
-from stats import StatKey
+from goblincommander.creature_groups import Horde
+from goblincommander.creatures import Goblin, GoblinCommander, Ogre, Orc
+from goblincommander.intro import print_title_figure, show_prelude
+from goblincommander.menus import show_game_menu, show_main_menu, show_raid_menu, show_scout_menu, show_name_menu, \
+    show_name_input, show_title_menu
+from goblincommander.settlements import Settlement, NomadEncampment, QuietVillage, BusyTown, BustlingCity, \
+    GleamingCastle
+from goblincommander.stash import Stash
+from goblincommander.stats import StatKey
 
 
 class StateKey(str, Enum):

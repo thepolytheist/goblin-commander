@@ -5,9 +5,9 @@ from typing import Type, TypeVar, Optional
 
 from tabulate import tabulate
 
-from creatures import Creature, Goblin, Human
-from stats import StatKey
-from upkeep import Upkeep
+from goblincommander.creatures import Creature, Goblin, Human
+from goblincommander.stats import StatKey
+from goblincommander.upkeep import Upkeep
 
 G = TypeVar('G')
 
