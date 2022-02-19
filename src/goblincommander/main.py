@@ -1,11 +1,9 @@
-import os
 import sys
 from enum import Enum
 from random import randint, choices, choice
 from typing import Any
 
-from termcolor import colored
-
+from goblincommander import console
 from goblincommander.creature_groups import Horde
 from goblincommander.creatures import Goblin, GoblinCommander, Ogre, Orc
 from goblincommander.intro import print_title_figure, show_prelude
@@ -26,11 +24,6 @@ class StateKey(str, Enum):
 
 
 state: dict[StateKey, Any] = {}
-
-
-def clear():
-    """Pushes old content off the top of the terminal."""
-    os.system('cls' if os.name == 'nt' else 'clear')
 
 
 def show_stash():
@@ -75,53 +68,50 @@ def raid(horde: Horde, settlement: Settlement) -> Settlement:
     print(f"Base militia Beef: {militia_beef:.2f}\n")
 
     if horde.get_stat_avg(StatKey.REPUTATION) > 4.5:
-        print(f"[REP] ", end="")
-        modifier_string = colored(f"(-{militia_cunning * 0.3:.2f} militia Cunning)", "green")
+        print(f"[REP] The {settlement.name} defense is losing their wits in the face of your famous might. ", end="")
+        console.print_styled(f"(-{militia_cunning * 0.3:.2f} militia Cunning)", console.ConsoleColor.GREEN)
         militia_cunning *= 0.7
-        print(f"The {settlement.name} defense is losing their wits in the face of your famous might. {modifier_string}")
 
-    print("[QCK] ", end="")
     if horde.get_stat_avg(StatKey.QUICKNESS) > settlement.militia.get_stat_avg(StatKey.QUICKNESS):
-        modifier_string = colored(f"(-{militia_beef * 0.1:.2f} militia Beef)", "green")
-        print(f"Your speedy horde got the drop on the {settlement.name} defenses! You've caught them unprepared. "
-              f"{modifier_string}")
+        print(
+            f"[QCK] Your speedy horde got the drop on the {settlement.name} defenses! You've caught them unprepared. ",
+            end="")
+        console.print_styled(f"(-{militia_beef * 0.1:.2f} militia Beef)", console.ConsoleColor.GREEN)
         militia_beef *= 0.9
     else:
         if settlement.scouted:
-            print(f"The {settlement.name} militia rallied quickly,"
+            print(f"[QCK] The {settlement.name} militia rallied quickly,"
                   " but your scouts found a critical flaw in their defenses. Not to worry. (No change)")
         else:
-            modifier_string = colored(f"(-{horde_beef * 0.1:.2f} horde Beef)", "red")
-            print(f"Uh oh. The {settlement.name} defenses rallied their forces in record time."
-                  f" You've got your work cut out for you. {modifier_string}")
+            print(f"[QCK] Uh oh. The {settlement.name} defenses rallied their forces in record time."
+                  f" You've got your work cut out for you. ", end="")
+            console.print_styled(f"(-{horde_beef * 0.1:.2f} horde Beef)", console.ConsoleColor.RED)
             horde_beef *= 0.9
 
     # Need to use local militia cunning to allow for modification
-    print("[CUN] ", end="")
     if settlement.scouted or horde.get_stat_avg(StatKey.CUNNING) > militia_cunning / len(settlement.militia.members):
-        modifier_string = colored(f"(+{horde_beef * 0.1:.2f} horde Beef)", "green")
         if settlement.scouted:
-            print(f"The information from your scouts has given you the tactical edge. {modifier_string}")
+            print(f"[CUN] The information from your scouts has given you the tactical edge. ", end="")
         else:
-            print(f"The {settlement.name} defenses don't seem too bright. Let's show them who's boss. "
-                  f"{modifier_string}")
+            print(f"[CUN] The {settlement.name} defenses don't seem too bright. Let's show them who's boss. ", end="")
+        console.print_styled(f"(+{horde_beef * 0.1:.2f} horde Beef)", console.ConsoleColor.GREEN)
         horde_beef *= 1.1
     else:
-        modifier_string = colored(f"(+{militia_beef * 0.1:.2f} militia Beef)", "red")
-        print(f"Hmm. These men defending {settlement.name} are smarter than we thought."
-              f" Best keep our heads on straight. {modifier_string}")
+        print(f"[CUN] Hmm. These men defending {settlement.name} are smarter than we thought."
+              f" Best keep our heads on straight. ", end="")
+        console.print_styled(f"(+{militia_beef * 0.1:.2f} militia Beef)", console.ConsoleColor.RED)
         militia_beef *= 1.1
 
     print(f"\nAdjusted horde Beef: {horde_beef:.2f}")
     print(f"Adjusted militia Beef: {militia_beef:.2f}\n")
     if horde_beef > militia_beef:
-        print(colored("VICTORY", "green"))
+        console.print_header("victory", console.ConsoleColor.GREEN)
         print(f"Your horde defeated the pitiful defenses of {settlement.name}.")
         settlement.defeated = True
         settlement.militia.members = []
         horde.bolster(Goblin, 1, 3)
     else:
-        print(colored("DEFEAT", "red"))
+        console.print_header("defeat", console.ConsoleColor.RED)
         print(f"Your pitiful horde was defeated by the defenses of {settlement.name}. "
               "Some of them didn't make it back.")
         horde.cull([Goblin, Ogre, Orc], 3, 5)
@@ -135,8 +125,7 @@ def raid_menu():
     match selection:
         case Settlement() as s:
             pass_weeks(1)
-            clear()
-            print(colored("\nRAID", "blue"))
+            console.print_header("raid")
             print(f"You've chosen to raid {s.name}.")
             s = raid(state[StateKey.HORDE], s)
             if s.defeated:
@@ -151,8 +140,7 @@ def scout_menu():
     match selection:
         case Settlement() as s:
             pass_weeks(1)
-            clear()
-            print(colored("\nSCOUT", "blue"))
+            console.print_header("scout")
             s.scouted = True
             print(f"Your scouts have gained valuable info about {s.name}:")
             print(f"Beef: {s.militia.get_stat_sum(StatKey.BEEF)}, "
@@ -218,25 +206,22 @@ def game_menu():
             if pass_weeks(1, dry_run=True):
                 scout_menu()
         case "recruit_goblins":
-            clear()
-            print(colored("RECRUIT", "blue"))
+            console.print_header("recruit")
             if pass_weeks(2):
                 recruit_goblins(state[StateKey.COMMANDER], state[StateKey.HORDE])
         case "recruit_ogres":
-            clear()
-            print(colored("RECRUIT", "blue"))
+            console.print_header("recruit")
             if pass_weeks(2):
                 recruit_ogres(state[StateKey.HORDE])
         case "recruit_orcs":
-            clear()
-            print(colored("RECRUIT", "blue"))
+            console.print_header("recruit")
             if pass_weeks(4):
                 recruit_orcs(state[StateKey.HORDE])
         case "view_horde":
-            clear()
+            console.clear()
             state[StateKey.HORDE].print_members()
         case "view_profile":
-            clear()
+            console.clear()
             state[StateKey.COMMANDER].print_profile()
             print()
             show_stash()
@@ -266,14 +251,14 @@ def name_menu():
 
     state[StateKey.COMMANDER] = GoblinCommander(name, title_selection)
 
-    clear()
+    console.clear()
 
     print("All right, so you will forever be known as "
           f"{state[StateKey.COMMANDER].name} the {state[StateKey.COMMANDER].adjective}.")
 
 
 def new_game():
-    clear()
+    console.clear()
 
     show_prelude()
 
@@ -314,7 +299,7 @@ def main_menu():
 
 
 def main():
-    clear()
+    console.clear()
     print_title_figure("Goblin Commander")
 
     main_menu()
