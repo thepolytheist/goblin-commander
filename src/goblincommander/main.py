@@ -26,8 +26,11 @@ state: dict[StateKey, Any] = {}
 
 
 def show_stash():
+    horde_upkeep = state[StateKey.HORDE].get_upkeep()
     stash = state[StateKey.STASH]
     print(f"You have {stash.food} food and {stash.gold} gold remaining in your stash.")
+    remaining_weeks = min(stash.food // horde_upkeep.food, stash.gold // horde_upkeep.gold)
+    print(f"This is enough to keep your horde happy for {remaining_weeks} week(s).")
 
 
 def pass_weeks(n: int, dry_run=False) -> bool:
