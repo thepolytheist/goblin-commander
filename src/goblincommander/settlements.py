@@ -20,7 +20,8 @@ class Settlement:
                  minimum_food_reward_multiplier: int,
                  maximum_food_reward_multiplier: int,
                  minimum_gold_reward_multiplier: int,
-                 maximum_gold_reward_multiplier: int):
+                 maximum_gold_reward_multiplier: int,
+                 reputation: float):
         self.name = choice(Settlement.settlement_config[settlement_type]["name_options"])
         self.description = choice(Settlement.settlement_config[settlement_type]["description_options"])
         self.settlement_type = settlement_type
@@ -42,6 +43,8 @@ class Settlement:
                             gold=randint(minimum_gold_reward_multiplier,
                                          maximum_gold_reward_multiplier) * len(self.militia.members))
 
+        self.reputation = reputation
+
         self.expected_beef = sum([Human.MINIMUM_BEEF, Human.MAXIMUM_BEEF]) / 2 * len(self.militia.members)
         self.expected_food = sum([self.minimum_food_reward_multiplier, self.maximum_food_reward_multiplier]) / 2 * len(
             self.militia.members)
@@ -62,7 +65,8 @@ class NomadEncampment(Settlement):
                          minimum_food_reward_multiplier=5,
                          maximum_food_reward_multiplier=15,
                          minimum_gold_reward_multiplier=1,
-                         maximum_gold_reward_multiplier=5)
+                         maximum_gold_reward_multiplier=5,
+                         reputation=0.05)
 
 
 class QuietVillage(Settlement):
@@ -75,7 +79,8 @@ class QuietVillage(Settlement):
                          minimum_food_reward_multiplier=12,
                          maximum_food_reward_multiplier=24,
                          minimum_gold_reward_multiplier=3,
-                         maximum_gold_reward_multiplier=7)
+                         maximum_gold_reward_multiplier=7,
+                         reputation=0.1)
 
 
 class BusyTown(Settlement):
@@ -88,7 +93,8 @@ class BusyTown(Settlement):
                          minimum_food_reward_multiplier=15,
                          maximum_food_reward_multiplier=35,
                          minimum_gold_reward_multiplier=4,
-                         maximum_gold_reward_multiplier=9)
+                         maximum_gold_reward_multiplier=9,
+                         reputation=0.15)
 
 
 class BustlingCity(Settlement):
@@ -101,7 +107,8 @@ class BustlingCity(Settlement):
                          minimum_food_reward_multiplier=20,
                          maximum_food_reward_multiplier=40,
                          minimum_gold_reward_multiplier=6,
-                         maximum_gold_reward_multiplier=10)
+                         maximum_gold_reward_multiplier=10,
+                         reputation=0.25)
 
 
 class GleamingCastle(Settlement):
@@ -114,4 +121,5 @@ class GleamingCastle(Settlement):
                          minimum_food_reward_multiplier=30,
                          maximum_food_reward_multiplier=70,
                          minimum_gold_reward_multiplier=10,
-                         maximum_gold_reward_multiplier=20)
+                         maximum_gold_reward_multiplier=20,
+                         reputation=0.5)

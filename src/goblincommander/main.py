@@ -82,6 +82,9 @@ def add_members_to_horde(horde: Horde, creature_type: Type[Creature], minimum: i
         print(f"\nYou've attracted {num_new_creatures} new {name}s!")
         # noinspection PyArgumentList
         new_creatures = [creature_type() for _ in range(num_new_creatures)]
+        new_reputation = horde.get_avg_reputation() * 0.9
+        for creature in new_creatures:
+            creature.stats.reputation.value = max(creature.stats.reputation.value, new_reputation)
         horde.bolster(new_creatures)
         print(f"Your horde now boasts {len(horde.members)} in its ranks!")
     else:
@@ -184,6 +187,8 @@ def raid_menu():
             if s.defeated:
                 print(f"Your successful raid added {s.reward.food} food and {s.reward.gold} gold to the stash.")
                 state[StateKey.STASH] += s.reward
+                for creature in state[StateKey.HORDE].members:
+                    creature.stats.reputation.value = min(creature.stats.reputation.value + s.reputation, 5.0)
                 check_for_victory()
 
 
