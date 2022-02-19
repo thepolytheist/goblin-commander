@@ -1,4 +1,4 @@
-from goblincommander.intro import print_title_figure
+from goblincommander.printers import print_title_figure
 
 
 def test_print_title_figure_prints_only_once(capsys):

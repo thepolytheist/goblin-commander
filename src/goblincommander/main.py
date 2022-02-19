@@ -6,10 +6,9 @@ from typing import Any, Type
 from goblincommander import console
 from goblincommander.creature_groups import Horde
 from goblincommander.creatures import Goblin, GoblinCommander, Ogre, Orc, Creature
-from goblincommander.intro import print_title_figure, show_prelude
 from goblincommander.menus import show_game_menu, show_main_menu, show_raid_menu, show_scout_menu, show_name_menu, \
     show_name_input, show_title_menu
-from goblincommander.printers import print_creature_group
+from goblincommander.printers import print_creature_group, print_title_figure
 from goblincommander.settlements import Settlement, NomadEncampment, QuietVillage, BusyTown, BustlingCity, \
     GleamingCastle
 from goblincommander.stash import Stash
@@ -291,7 +290,8 @@ def name_menu():
 def new_game():
     console.clear()
 
-    show_prelude()
+    print("You are the vaunted commander of a rioting horde. Your skin is green, and your heart is cold. "
+          "Lead your minions to victory.\n")
 
     name_menu()
 

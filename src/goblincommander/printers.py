@@ -1,6 +1,21 @@
+from pyfiglet import Figlet
 from tabulate import tabulate
 
+import console
 from goblincommander.creature_groups import CreatureGroup
+
+
+def print_title_figure(text):
+    """Prints the provided text as a Figlet. Disallows multiple calls."""
+    # Prevent the intro from being printed multiple times
+    if not print_title_figure.has_been_called:
+        f = Figlet(font='slant')
+        console.print_styled(text, console.ConsoleColor.GREEN, lambda s: f.renderText(s.upper()))
+        print_title_figure.has_been_called = True
+
+
+# Set flag to track whether the title figure has been shown
+print_title_figure.has_been_called = False
 
 
 def print_creature_group(group: CreatureGroup) -> None:
