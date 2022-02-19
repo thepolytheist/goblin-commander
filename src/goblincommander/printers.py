@@ -1,7 +1,7 @@
 from pyfiglet import Figlet
 from tabulate import tabulate
 
-import console
+from goblincommander import console
 from goblincommander.creature_groups import CreatureGroup
 
 
