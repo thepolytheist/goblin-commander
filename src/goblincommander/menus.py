@@ -1,6 +1,7 @@
 import sys
 
 from inquirer import List, prompt, Text
+from termcolor import colored
 
 from goblincommander.settlements import Settlement
 
@@ -77,8 +78,21 @@ def show_game_menu():
     return process_single_selection_menu(GAME_MENU_SELECTION)
 
 
+def get_raid_menu_description(settlement: Settlement):
+    description = f"{settlement.name}, a {settlement.settlement_type} guarded by {len(settlement.militia.members)} men."
+
+    if settlement.scouted:
+        report = f"(Beef: {settlement.militia.get_total_beef()}," \
+                 f" reward: {settlement.reward.food} food, {settlement.reward.gold} gold)"
+    else:
+        report = f"(expected Beef: {settlement.expected_beef}, " \
+                 f"expected reward: {settlement.expected_food} food, {settlement.expected_gold} gold)"
+
+    return f"{description} {colored(report, attrs=['dark'])}"
+
+
 def show_raid_menu(settlements: list[Settlement]):
-    choices = list((s.get_raid_menu_description(), s) for s in settlements if not s.defeated and s.militia)
+    choices = list((get_raid_menu_description(s), s) for s in settlements if not s.defeated and s.militia)
     choices.append("Back")
     return process_single_selection_menu([List("raid_menu_selection",
                                                message="Which settlement would you like to raid?",
@@ -87,7 +101,7 @@ def show_raid_menu(settlements: list[Settlement]):
 
 
 def show_scout_menu(settlements: list[Settlement]):
-    choices = list((s.get_raid_menu_description(), s) for s in settlements
+    choices = list((get_raid_menu_description(s), s) for s in settlements
                    if not s.defeated and s.militia and not s.scouted)
     choices.append("Back")
     return process_single_selection_menu([List("scout_menu_selection",

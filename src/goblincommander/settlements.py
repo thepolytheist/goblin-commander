@@ -2,8 +2,6 @@ import json
 from importlib.resources import files
 from random import choice, randint
 
-from termcolor import colored
-
 import goblincommander.resources
 from goblincommander import creature_groups
 from goblincommander.creatures import Human
@@ -44,24 +42,14 @@ class Settlement:
                             gold=randint(minimum_gold_reward_multiplier,
                                          maximum_gold_reward_multiplier) * len(self.militia.members))
 
+        self.expected_beef = sum([Human.MINIMUM_BEEF, Human.MAXIMUM_BEEF]) / 2 * len(self.militia.members)
+        self.expected_food = sum([self.minimum_food_reward_multiplier, self.maximum_food_reward_multiplier]) / 2 * len(
+            self.militia.members)
+        self.expected_gold = sum([self.minimum_gold_reward_multiplier, self.maximum_gold_reward_multiplier]) / 2 * len(
+            self.militia.members)
+
     def __str__(self):
         return f"{self.name}, a {self.settlement_type}."
-
-    def get_raid_menu_description(self):
-        description = f"{self.name}, a {self.settlement_type} guarded by {len(self.militia.members)} men."
-
-        if self.scouted:
-            report = f"(Beef: {self.militia.get_total_beef()}," \
-                     f" reward: {self.reward.food} food, {self.reward.gold} gold)"
-        else:
-            expected_beef = sum([Human.MINIMUM_BEEF, Human.MAXIMUM_BEEF]) / 2 * len(self.militia.members)
-            expected_food = sum([self.minimum_food_reward_multiplier,
-                                 self.maximum_food_reward_multiplier]) / 2 * len(self.militia.members)
-            expected_gold = sum([self.minimum_gold_reward_multiplier,
-                                 self.maximum_gold_reward_multiplier]) / 2 * len(self.militia.members)
-            report = f"(expected Beef: {expected_beef}, expected reward: {expected_food} food, {expected_gold} gold)"
-
-        return f"{description} {colored(report, attrs=['dark'])}"
 
 
 class NomadEncampment(Settlement):
