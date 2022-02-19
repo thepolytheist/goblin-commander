@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name='goblincommander',
-    version='0.20.0',
+    version='0.21.0',
     package_dir={'': 'src'},
     packages=['goblincommander'],
     url='https://github.com/thepolytheist/goblin-commander',

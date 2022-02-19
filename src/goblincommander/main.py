@@ -63,10 +63,12 @@ def check_for_victory():
         return
 
     commander = state[StateKey.COMMANDER]
+    stash = state[StateKey.STASH]
     print_victory_figure()
     print("Congratulations, commander!")
     print(f"The horde of {commander.name} the {commander.adjective} has swarmed over the land, "
-          f"conquering all in its path.\n")
+          f"conquering {len(state[StateKey.SETTLEMENTS])} settlements in {state[StateKey.WEEK]} weeks.")
+    print(f"\nYour horde had {stash.food} food and {stash.gold} gold remaining.")
     quit_game()
 
 
