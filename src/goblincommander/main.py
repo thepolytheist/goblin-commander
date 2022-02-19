@@ -135,13 +135,13 @@ def raid(horde: Horde, settlement: Settlement) -> Settlement:
     print(f"\nAdjusted horde Beef: {horde_beef:.2f}")
     print(f"Adjusted militia Beef: {militia_beef:.2f}\n")
     if horde_beef > militia_beef:
-        console.print_header("victory", console.ConsoleColor.GREEN)
+        console.print_styled("VICTORY", console.ConsoleColor.GREEN)
         print(f"Your horde defeated the pitiful defenses of {settlement.name}.")
         settlement.defeated = True
         settlement.militia.members = []
         add_members_to_horde(horde, Goblin, 1, 3)
     else:
-        console.print_header("defeat", console.ConsoleColor.RED)
+        console.print_styled("DEFEAT", console.ConsoleColor.RED)
         print(f"Your pitiful horde was defeated by the defenses of {settlement.name}. "
               "Some of them didn't make it back.")
         cull_horde(horde, [Goblin, Ogre, Orc], 3, 5)
