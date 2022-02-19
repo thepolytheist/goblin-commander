@@ -70,19 +70,6 @@ class QuietVillage(Settlement):
 
     def __init__(self):
         super().__init__(settlement_type="quiet village",
-                         minimum_militia_size=3,
-                         maximum_militia_size=8,
-                         minimum_food_reward_multiplier=10,
-                         maximum_food_reward_multiplier=20,
-                         minimum_gold_reward_multiplier=2,
-                         maximum_gold_reward_multiplier=6)
-
-
-class BusyTown(Settlement):
-    """A busy merchant town just waiting to be raided."""
-
-    def __init__(self):
-        super().__init__(settlement_type="busy town",
                          minimum_militia_size=4,
                          maximum_militia_size=10,
                          minimum_food_reward_multiplier=12,
@@ -91,17 +78,30 @@ class BusyTown(Settlement):
                          maximum_gold_reward_multiplier=7)
 
 
+class BusyTown(Settlement):
+    """A busy merchant town just waiting to be raided."""
+
+    def __init__(self):
+        super().__init__(settlement_type="busy town",
+                         minimum_militia_size=8,
+                         maximum_militia_size=16,
+                         minimum_food_reward_multiplier=15,
+                         maximum_food_reward_multiplier=35,
+                         minimum_gold_reward_multiplier=4,
+                         maximum_gold_reward_multiplier=9)
+
+
 class BustlingCity(Settlement):
     """A bustling city in the shadow of the capital."""
 
     def __init__(self):
         super().__init__(settlement_type="bustling city",
-                         minimum_militia_size=6,
-                         maximum_militia_size=15,
-                         minimum_food_reward_multiplier=15,
-                         maximum_food_reward_multiplier=35,
-                         minimum_gold_reward_multiplier=4,
-                         maximum_gold_reward_multiplier=9)
+                         minimum_militia_size=12,
+                         maximum_militia_size=22,
+                         minimum_food_reward_multiplier=20,
+                         maximum_food_reward_multiplier=40,
+                         minimum_gold_reward_multiplier=6,
+                         maximum_gold_reward_multiplier=10)
 
 
 class GleamingCastle(Settlement):
@@ -109,9 +109,9 @@ class GleamingCastle(Settlement):
 
     def __init__(self):
         super().__init__(settlement_type="gleaming castle",
-                         minimum_militia_size=10,
-                         maximum_militia_size=30,
-                         minimum_food_reward_multiplier=20,
-                         maximum_food_reward_multiplier=40,
-                         minimum_gold_reward_multiplier=6,
-                         maximum_gold_reward_multiplier=10)
+                         minimum_militia_size=25,
+                         maximum_militia_size=50,
+                         minimum_food_reward_multiplier=30,
+                         maximum_food_reward_multiplier=70,
+                         minimum_gold_reward_multiplier=10,
+                         maximum_gold_reward_multiplier=20)
