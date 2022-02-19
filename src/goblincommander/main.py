@@ -1,14 +1,15 @@
 import sys
 from enum import Enum
-from random import randint, choices, choice
-from typing import Any
+from random import randint, choices, choice, sample
+from typing import Any, Type
 
 from goblincommander import console
 from goblincommander.creature_groups import Horde
-from goblincommander.creatures import Goblin, GoblinCommander, Ogre, Orc
+from goblincommander.creatures import Goblin, GoblinCommander, Ogre, Orc, Creature
 from goblincommander.intro import print_title_figure, show_prelude
 from goblincommander.menus import show_game_menu, show_main_menu, show_raid_menu, show_scout_menu, show_name_menu, \
     show_name_input, show_title_menu
+from goblincommander.printers import print_creature_group
 from goblincommander.settlements import Settlement, NomadEncampment, QuietVillage, BusyTown, BustlingCity, \
     GleamingCastle
 from goblincommander.stash import Stash
@@ -48,6 +49,37 @@ def pass_weeks(n: int, dry_run=False) -> bool:
         print(f"{n} week(s) have passed. In this time, your horde has required {horde_upkeep.gold * n} gold "
               f"and {horde_upkeep.food * n} food to stay happy.")
     return True
+
+
+def add_members_to_horde(horde: Horde, creature_type: Type[Creature], minimum: int, maximum: int) -> None:
+    """
+    Adds a number of creatures to the horde between the minimum and maximum values of the creature type provided.
+    """
+    num_new_creatures = randint(minimum, maximum)
+    if num_new_creatures > 0:
+        name = creature_type.__name__.lower()
+        print(f"\nYou've attracted {num_new_creatures} new {name}s!")
+        # noinspection PyArgumentList
+        new_creatures = [creature_type() for _ in range(num_new_creatures)]
+        horde.bolster(new_creatures)
+        print(f"Your horde now boasts {len(horde.members)} in its ranks!")
+    else:
+        print("\nSeems no one showed up today. What a shame.")
+
+
+def cull_horde(horde: Horde, creature_types: list[Type[Creature]], minimum: int, maximum: int):
+    """
+    Removes a number of creatures between the minimum and maximum values based
+    on the candidate creature types provided.
+    """
+    num_to_cull = min(randint(minimum, maximum), len(horde.members))
+    candidate_creatures = [m for m in horde.members if type(m) in creature_types and not m.is_commander]
+    if num_to_cull <= 0 or len(candidate_creatures) == 0:
+        print("\nLooks like everyone survived today.")
+    else:
+        num_to_cull = min(len(candidate_creatures), num_to_cull)
+        print(f"\n{num_to_cull} of your horde didn't make it back alive.")
+        horde.cull(sample(candidate_creatures, k=num_to_cull))
 
 
 def raid(horde: Horde, settlement: Settlement) -> Settlement:
@@ -108,12 +140,12 @@ def raid(horde: Horde, settlement: Settlement) -> Settlement:
         print(f"Your horde defeated the pitiful defenses of {settlement.name}.")
         settlement.defeated = True
         settlement.militia.members = []
-        horde.bolster(Goblin, 1, 3)
+        add_members_to_horde(horde, Goblin, 1, 3)
     else:
         console.print_header("defeat", console.ConsoleColor.RED)
         print(f"Your pitiful horde was defeated by the defenses of {settlement.name}. "
               "Some of them didn't make it back.")
-        horde.cull([Goblin, Ogre, Orc], 3, 5)
+        cull_horde(horde, [Goblin, Ogre, Orc], 3, 5)
     return settlement
 
 
@@ -152,27 +184,27 @@ def recruit_goblins(commander: GoblinCommander, horde: Horde):
     if reputation == 5.0:
         print(f"No goblin is more feared or admired than {commander.name} the {commander.adjective}. "
               "Other creatures are running to join your famous horde.")
-        horde.bolster(Goblin, 4, 5)
+        add_members_to_horde(horde, Goblin, 4, 5)
     elif reputation > 4.0:
         print(f"The name {commander.name} is known far and wide. "
               "With your charisma and notoriety, you've managed to recruit more creatures.")
-        horde.bolster(Goblin, 3, 4)
+        add_members_to_horde(horde, Goblin, 3, 4)
     elif reputation > 3.0:
         print(f"Creatures in the area are beginning to recognize the name {commander.name}. "
               "They don't need a lot of convincing to come fight for you.")
-        horde.bolster(Goblin, 2, 4)
+        add_members_to_horde(horde, Goblin, 2, 4)
     elif reputation > 2.0:
         print(f"No one's heard of {commander.name} the {commander.adjective}, "
               "but there are still some creatures looking for work.")
-        horde.bolster(Goblin, 1, 3)
+        add_members_to_horde(horde, Goblin, 1, 3)
     elif reputation > 1.0:
         print(f"{commander.name} the {commander.adjective} is known more for struggling and losing than anything else."
               " Regardless, you might be able to convince some creatures to follow you.")
-        horde.bolster(Goblin, 1, 2)
+        add_members_to_horde(horde, Goblin, 1, 2)
     else:
         # reputation < 1.0
         print(f"Good luck finding anyone who wants to join the unlucky horde of {commander.name} the Fallible.")
-        horde.bolster(Goblin, 0, 1)
+        add_members_to_horde(horde, Goblin, 0, 1)
 
 
 def recruit_ogres(horde: Horde):
@@ -181,13 +213,13 @@ def recruit_ogres(horde: Horde):
               "but they convinced some ogres to return with them regardless.")
     else:
         print("Your goblins brought back ogres for the horde, but not without facing danger.")
-        horde.cull([Goblin], 3, 5)
-    horde.bolster(Ogre, 2, 3)
+        cull_horde(horde, [Goblin], 3, 5)
+    add_members_to_horde(horde, Ogre, 2, 3)
 
 
 def recruit_orcs(horde: Horde):
     print("It took some time, but you've managed to convince an orc raiding party to join your horde.")
-    horde.bolster(Orc, 4, 6)
+    add_members_to_horde(horde, Orc, 4, 6)
 
 
 def game_menu():
@@ -218,7 +250,7 @@ def game_menu():
                 recruit_orcs(state[StateKey.HORDE])
         case "view_horde":
             console.clear()
-            state[StateKey.HORDE].print_members()
+            print_creature_group(state[StateKey.HORDE])
         case "view_profile":
             console.clear()
             state[StateKey.COMMANDER].print_profile()
