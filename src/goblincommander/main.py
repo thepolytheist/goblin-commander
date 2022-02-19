@@ -3,7 +3,7 @@ from enum import Enum
 from random import randint, choices, choice, sample
 from typing import Any, Type
 
-from goblincommander import console
+from goblincommander import console, creature_groups
 from goblincommander.creature_groups import Horde
 from goblincommander.creatures import Goblin, GoblinCommander, Ogre, Orc, Creature
 from goblincommander.menus import show_game_menu, show_main_menu, show_raid_menu, show_scout_menu, show_name_menu, \
@@ -303,7 +303,7 @@ def new_game():
     state[StateKey.SETTLEMENTS] = [settlement_type() for settlement_type in generated_settlement_types]
 
     # Generate horde
-    state[StateKey.HORDE] = Horde.generate_horde(commander=state[StateKey.COMMANDER])
+    state[StateKey.HORDE] = creature_groups.generate_horde(commander=state[StateKey.COMMANDER])
     # Subtract 1 from the count here to ignore the commander
     print(f"\nYou have attracted a stunning horde of {len(state[StateKey.HORDE].members) - 1} goblin(s).")
     horde_upkeep = state[StateKey.HORDE].get_upkeep()

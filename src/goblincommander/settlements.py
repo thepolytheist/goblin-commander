@@ -5,7 +5,7 @@ from random import choice, randint
 from termcolor import colored
 
 import goblincommander.resources
-from goblincommander.creature_groups import Militia
+from goblincommander import creature_groups
 from goblincommander.creatures import Human
 from goblincommander.stash import Stash
 
@@ -37,8 +37,8 @@ class Settlement:
         self.minimum_gold_reward_multiplier = minimum_gold_reward_multiplier
         self.maximum_gold_reward_multiplier = maximum_gold_reward_multiplier
 
-        self.militia = Militia.generate_militia(minimum_size=minimum_militia_size,
-                                                maximum_size=maximum_militia_size)
+        self.militia = creature_groups.generate_militia(minimum_size=minimum_militia_size,
+                                                        maximum_size=maximum_militia_size)
         self.reward = Stash(food=randint(minimum_food_reward_multiplier,
                                          maximum_food_reward_multiplier) * len(self.militia.members),
                             gold=randint(minimum_gold_reward_multiplier,
