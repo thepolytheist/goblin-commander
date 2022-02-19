@@ -50,6 +50,21 @@ def pass_weeks(n: int, dry_run=False) -> bool:
     return True
 
 
+def quit_game():
+    print("Goodbye, commander.")
+    sys.exit()
+
+
+def check_for_victory():
+    if any(map(lambda s: not s.defeated, state[StateKey.SETTLEMENTS])):
+        return
+
+    commander = state[StateKey.COMMANDER]
+    console.print_styled("\nCongratulations, commander!", console.ConsoleColor.GREEN)
+    print(f"The horde of {commander.name} the {commander.adjective} has swarmed over the land, "
+          f"conquering all in its path.\n")
+    quit_game()
+
 def add_members_to_horde(horde: Horde, creature_type: Type[Creature], minimum: int, maximum: int) -> None:
     """
     Adds a number of creatures to the horde between the minimum and maximum values of the creature type provided.
@@ -162,6 +177,7 @@ def raid_menu():
             if s.defeated:
                 print(f"Your successful raid added {s.reward.food} food and {s.reward.gold} gold to the stash.")
                 state[StateKey.STASH] += s.reward
+                check_for_victory()
 
 
 def scout_menu():
@@ -257,8 +273,7 @@ def game_menu():
             print()
             show_stash()
         case "quit":
-            print("Goodbye, commander.")
-            sys.exit()
+            quit_game()
         case _:
             print("Please select a different option.\n")
 
