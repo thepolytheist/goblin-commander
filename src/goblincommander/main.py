@@ -8,7 +8,7 @@ from goblincommander.creature_groups import Horde
 from goblincommander.creatures import Goblin, GoblinCommander, Ogre, Orc, Creature
 from goblincommander.menus import show_game_menu, show_main_menu, show_raid_menu, show_scout_menu, show_name_menu, \
     show_name_input, show_title_menu
-from goblincommander.printers import print_creature_group, print_title_figure
+from goblincommander.printers import print_creature_group, print_title_figure, print_victory_figure
 from goblincommander.settlements import Settlement, NomadEncampment, QuietVillage, BusyTown, BustlingCity, \
     GleamingCastle
 from goblincommander.stash import Stash
@@ -60,10 +60,12 @@ def check_for_victory():
         return
 
     commander = state[StateKey.COMMANDER]
-    console.print_styled("\nCongratulations, commander!", console.ConsoleColor.GREEN)
+    print_victory_figure()
+    print("Congratulations, commander!")
     print(f"The horde of {commander.name} the {commander.adjective} has swarmed over the land, "
           f"conquering all in its path.\n")
     quit_game()
+
 
 def add_members_to_horde(horde: Horde, creature_type: Type[Creature], minimum: int, maximum: int) -> None:
     """

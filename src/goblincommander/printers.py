@@ -18,6 +18,12 @@ def print_title_figure(text):
 print_title_figure.has_been_called = False
 
 
+def print_victory_figure():
+    """Prints "Victory" as a Figlet."""
+    f = Figlet(font='slant')
+    console.print_styled("Victory", console.ConsoleColor.GREEN, lambda s: f.renderText(s))
+
+
 def print_creature_group(group: CreatureGroup) -> None:
     row_data = [[creature.name, type(creature).__name__, creature.adjective,
                  str(creature.stats.beef.value),
