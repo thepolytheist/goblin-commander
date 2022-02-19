@@ -6,7 +6,7 @@ from typing import Optional
 from tabulate import tabulate
 
 import goblincommander.resources
-from goblincommander.stats import StatKey, Stat, BeefStat, CunningStat, QuicknessStat, ReputationStat
+from goblincommander.stats import Stats
 from goblincommander.upkeep import Upkeep
 
 # Load creature adjectives from file
@@ -29,7 +29,7 @@ def get_stat_rating(actual: int | float, minimum: int, maximum: int) -> float:
     return (actual - minimum) / (maximum - minimum)
 
 
-def get_adjective(stats: dict[StatKey, Stat],
+def get_adjective(stats: Stats,
                   min_beef,
                   max_beef,
                   min_cunning,
@@ -43,10 +43,10 @@ def get_adjective(stats: dict[StatKey, Stat],
     """
 
     # For each stat, determine a rating based on how high the creature is in its range
-    beef_rating = get_stat_rating(stats[StatKey.BEEF].value, min_beef, max_beef)
-    cunning_rating = get_stat_rating(stats[StatKey.CUNNING].value, min_cunning, max_cunning)
-    quickness_rating = get_stat_rating(stats[StatKey.QUICKNESS].value, min_quickness, max_quickness)
-    reputation_rating = get_stat_rating(stats[StatKey.REPUTATION].value, 0, 5)
+    beef_rating = get_stat_rating(stats.beef.value, min_beef, max_beef)
+    cunning_rating = get_stat_rating(stats.cunning.value, min_cunning, max_cunning)
+    quickness_rating = get_stat_rating(stats.quickness.value, min_quickness, max_quickness)
+    reputation_rating = get_stat_rating(stats.reputation.value, 0, 5)
 
     # Could consider precalculating all of these and storing them on the creature for later hooks
     # Would need to recalculate if we decide to change stats mid-game
@@ -93,12 +93,24 @@ def get_adjective(stats: dict[StatKey, Stat],
     return choice(adjectives[choice(buckets)])
 
 
+def generate_stats(min_beef: int,
+                   max_beef: int,
+                   min_cunning: int,
+                   max_cunning: int,
+                   min_quickness: int,
+                   max_quickness: int):
+    return Stats(randint(min_beef, max_beef),
+                 randint(min_cunning, max_cunning),
+                 randint(min_quickness, max_quickness),
+                 .5 * randint(1, 10))
+
+
 class Creature:
     """Base class representing any creature in a horde"""
 
     def __init__(self, name: str,
                  adjective: str,
-                 stats: dict[StatKey, Stat],
+                 stats: Stats,
                  upkeep: Upkeep,
                  is_commander=False):
         self.name = name
@@ -113,7 +125,7 @@ class Creature:
 
     def stats_string(self, multiline=True) -> str:
         """Gets a display string of the creature's stats for inline or multiline block printing."""
-        stats_list = list(self.stats.values())
+        stats_list = [self.stats.beef, self.stats.cunning, self.stats.quickness, self.stats.reputation]
         if multiline:
             return '\t'.join([s.short_name for s in stats_list]) + '\n' + \
                    '\t'.join([str(s.value) for s in stats_list])
@@ -142,17 +154,9 @@ class Goblin(Creature):
     name_options = goblin_data["name_options"]
     del goblin_data
 
-    # TODO: Turn this into module method
-    @staticmethod
-    def generate_stats():
-        return {StatKey.BEEF: BeefStat(randint(Goblin.MINIMUM_BEEF, Goblin.MAXIMUM_BEEF)),
-                StatKey.CUNNING: CunningStat(randint(Goblin.MINIMUM_CUNNING, Goblin.MAXIMUM_CUNNING)),
-                StatKey.QUICKNESS: QuicknessStat(randint(Goblin.MINIMUM_QUICKNESS, Goblin.MAXIMUM_QUICKNESS)),
-                StatKey.REPUTATION: ReputationStat(.5 * randint(1, 10))}
-
     def __init__(self, name: Optional[str] = None,
                  adjective: Optional[str] = None,
-                 stats: Optional[dict] = None,
+                 stats: Optional[Stats] = None,
                  upkeep: Optional[Upkeep] = None,
                  is_commander=False):
         if not Goblin.name_options:
@@ -162,7 +166,8 @@ class Goblin(Creature):
             name = choice(Goblin.name_options)
 
         if not stats:
-            stats = Goblin.generate_stats()
+            stats = generate_stats(Goblin.MINIMUM_BEEF, Goblin.MAXIMUM_BEEF, Goblin.MINIMUM_CUNNING,
+                                   Goblin.MAXIMUM_CUNNING, Goblin.MINIMUM_QUICKNESS, Goblin.MAXIMUM_QUICKNESS)
 
         if not adjective:
             adjective = get_adjective(stats,
@@ -186,31 +191,26 @@ class Goblin(Creature):
 class GoblinCommander(Goblin):
 
     def __init__(self, name: str, title: str):
-        stats = {
-            StatKey.BEEF: BeefStat(3),
-            StatKey.CUNNING: CunningStat(8),
-            StatKey.QUICKNESS: QuicknessStat(5),
-            StatKey.REPUTATION: ReputationStat(3.0)
-        }
+        stats = Stats(3, 8, 5, 3.0)
 
         match title:
             case "Skullcracker":
-                stats[StatKey.BEEF].value += 5
+                stats.beef.value += 5
             case "Brainy":
-                stats[StatKey.CUNNING].value += 5
+                stats.cunning.value += 5
             case "Swift":
-                stats[StatKey.QUICKNESS].value += 5
+                stats.quickness.value += 5
             case "Notorious":
-                stats[StatKey.REPUTATION].value += 2.0
+                stats.reputation.value += 2.0
 
         super().__init__(name, title, stats, Upkeep(0, 0), True)
 
     def print_profile(self):
         print(tabulate([[self.name, self.adjective,
-                         str(self.stats[StatKey.BEEF].value),
-                         str(self.stats[StatKey.CUNNING].value),
-                         str(self.stats[StatKey.QUICKNESS].value),
-                         str(self.stats[StatKey.REPUTATION].value)]],
+                         str(self.stats.beef.value),
+                         str(self.stats.cunning.value),
+                         str(self.stats.quickness.value),
+                         str(self.stats.reputation.value)]],
                        headers=["Name", "Title", "Beef", "Cunning", "Quickness", "Reputation"],
                        floatfmt=("", "", "", "", "", "3.2f")))
 
@@ -232,18 +232,12 @@ class Human(Creature):
     # Human descriptive data
     name_options = ["Paul", "Harold", "Jimbo", "Willy", "Mark"]
 
-    @staticmethod
-    def generate_stats():
-        return {StatKey.BEEF: BeefStat(randint(Human.MINIMUM_BEEF, Human.MAXIMUM_BEEF)),
-                StatKey.CUNNING: CunningStat(randint(Human.MINIMUM_CUNNING, Human.MAXIMUM_CUNNING)),
-                StatKey.QUICKNESS: QuicknessStat(randint(Human.MINIMUM_QUICKNESS, Human.MAXIMUM_QUICKNESS)),
-                StatKey.REPUTATION: ReputationStat(.5 * randint(1, 10))}
-
     def __init__(self):
         if not Human.name_options:
             raise RuntimeError("You forgot to set the Human data, idiot.")
 
-        stats = Human.generate_stats()
+        stats = generate_stats(Human.MINIMUM_BEEF, Human.MAXIMUM_BEEF, Human.MINIMUM_CUNNING, Human.MAXIMUM_CUNNING,
+                               Human.MINIMUM_QUICKNESS, Human.MAXIMUM_QUICKNESS)
 
         super().__init__(choice(Human.name_options),
                          get_adjective(stats,
@@ -280,19 +274,12 @@ class Ogre(Creature):
     name_options = ogre_data["name_options"]
     del ogre_data
 
-    # TODO: Turn this into module method
-    @staticmethod
-    def generate_stats():
-        return {StatKey.BEEF: BeefStat(randint(Ogre.MINIMUM_BEEF, Ogre.MAXIMUM_BEEF)),
-                StatKey.CUNNING: CunningStat(randint(Ogre.MINIMUM_CUNNING, Ogre.MAXIMUM_CUNNING)),
-                StatKey.QUICKNESS: QuicknessStat(randint(Ogre.MINIMUM_QUICKNESS, Ogre.MAXIMUM_QUICKNESS)),
-                StatKey.REPUTATION: ReputationStat(.5 * randint(1, 10))}
-
     def __init__(self):
         if not Ogre.name_options:
             raise RuntimeError("You forgot to set Ogre data, idiot.")
 
-        stats = Ogre.generate_stats()
+        stats = generate_stats(Ogre.MINIMUM_BEEF, Ogre.MAXIMUM_BEEF, Ogre.MINIMUM_CUNNING, Ogre.MAXIMUM_CUNNING,
+                               Ogre.MINIMUM_QUICKNESS, Ogre.MAXIMUM_QUICKNESS)
 
         super().__init__(choice(Ogre.name_options),
                          get_adjective(stats,
@@ -329,19 +316,12 @@ class Orc(Creature):
     name_options = orc_data["name_options"]
     del orc_data
 
-    # TODO: Turn this into module method
-    @staticmethod
-    def generate_stats():
-        return {StatKey.BEEF: BeefStat(randint(Orc.MINIMUM_BEEF, Orc.MAXIMUM_BEEF)),
-                StatKey.CUNNING: CunningStat(randint(Orc.MINIMUM_CUNNING, Orc.MAXIMUM_CUNNING)),
-                StatKey.QUICKNESS: QuicknessStat(randint(Orc.MINIMUM_QUICKNESS, Orc.MAXIMUM_QUICKNESS)),
-                StatKey.REPUTATION: ReputationStat(.5 * randint(1, 10))}
-
     def __init__(self):
         if not Orc.name_options:
             raise RuntimeError("You forgot to set Orc data, idiot.")
 
-        stats = Orc.generate_stats()
+        stats = generate_stats(Orc.MINIMUM_BEEF, Orc.MAXIMUM_BEEF, Orc.MINIMUM_CUNNING, Orc.MAXIMUM_CUNNING,
+                               Orc.MINIMUM_QUICKNESS, Orc.MAXIMUM_QUICKNESS)
 
         super().__init__(choice(Orc.name_options),
                          get_adjective(stats,

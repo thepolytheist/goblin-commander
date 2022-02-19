@@ -11,3 +11,6 @@ class Stash:
     def add(self, other: Stash):
         self.food += other.food
         self.gold += other.gold
+
+    def __add__(self, other: Stash):
+        self.add(other)

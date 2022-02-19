@@ -8,7 +8,6 @@ import goblincommander.resources
 from goblincommander.creature_groups import Militia
 from goblincommander.creatures import Human
 from goblincommander.stash import Stash
-from goblincommander.stats import StatKey
 
 
 class Settlement:
@@ -52,7 +51,7 @@ class Settlement:
         description = f"{self.name}, a {self.settlement_type} guarded by {len(self.militia.members)} men."
 
         if self.scouted:
-            report = f"(Beef: {self.militia.get_stat_sum(StatKey.BEEF)}," \
+            report = f"(Beef: {self.militia.get_total_beef()}," \
                      f" reward: {self.reward.food} food, {self.reward.gold} gold)"
         else:
             expected_beef = sum([Human.MINIMUM_BEEF, Human.MAXIMUM_BEEF]) / 2 * len(self.militia.members)

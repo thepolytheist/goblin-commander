@@ -6,7 +6,6 @@ from typing import Type, TypeVar, Optional
 from tabulate import tabulate
 
 from goblincommander.creatures import Creature, Goblin, Human
-from goblincommander.stats import StatKey
 from goblincommander.upkeep import Upkeep
 
 G = TypeVar('G')
@@ -42,30 +41,46 @@ class CreatureGroup:
         return Upkeep(food=sum([g.upkeep.food for g in self.members]),
                       gold=sum([g.upkeep.gold for g in self.members]))
 
-    def get_stat_sum(self, stat_key: StatKey) -> int | float:
-        """Get the sum of a stat for all creatures in the group."""
-        return sum([m.stats[stat_key].value for m in self.members])
+    def get_total_beef(self) -> int:
+        return sum([m.stats.beef.value for m in self.members])
 
-    def get_stat_avg(self, stat_key: StatKey) -> float:
-        """Get the mean of a stat for all creatures in the group."""
-        return self.get_stat_sum(stat_key) / len(self.members)
+    def get_avg_beef(self) -> float:
+        return self.get_total_beef() / len(self.members)
+
+    def get_total_cunning(self) -> int:
+        return sum([m.stats.cunning.value for m in self.members])
+
+    def get_avg_cunning(self) -> float:
+        return self.get_total_cunning() / len(self.members)
+
+    def get_total_quickness(self) -> int:
+        return sum([m.stats.quickness.value for m in self.members])
+
+    def get_avg_quickness(self) -> float:
+        return self.get_total_quickness() / len(self.members)
+
+    def get_total_reputation(self) -> float:
+        return sum([m.stats.reputation.value for m in self.members])
+
+    def get_avg_reputation(self) -> float:
+        return self.get_total_reputation() / len(self.members)
 
     def print_members(self):
         row_data = [[creature.name, type(creature).__name__, creature.adjective,
-                     str(creature.stats[StatKey.BEEF].value),
-                     str(creature.stats[StatKey.CUNNING].value),
-                     str(creature.stats[StatKey.QUICKNESS].value),
-                     f"{creature.stats[StatKey.REPUTATION].value:3.2f}"] for creature in self.members
+                     str(creature.stats.beef.value),
+                     str(creature.stats.cunning.value),
+                     str(creature.stats.quickness.value),
+                     f"{creature.stats.reputation.value:3.2f}"] for creature in self.members
                     if not creature.is_commander]
         print(tabulate(row_data,
                        headers=["Name", "Type", "Adjective", "Beef", "Cunning", "Quickness", "Reputation"],
                        floatfmt=("", "", "", ".0f", ".0f", ".0f", "3.2f")))
         print()
         print(tabulate([["Averages",
-                         str(self.get_stat_avg(StatKey.BEEF)),
-                         str(self.get_stat_avg(StatKey.CUNNING)),
-                         str(self.get_stat_avg(StatKey.QUICKNESS)),
-                         str(self.get_stat_avg(StatKey.REPUTATION))]],
+                         str(self.get_avg_beef()),
+                         str(self.get_avg_cunning()),
+                         str(self.get_avg_quickness()),
+                         str(self.get_avg_reputation())]],
                        headers=["", "Beef", "Cunning", "Quickness", "Reputation"],
                        tablefmt="plain",
                        floatfmt="3.2f"))

@@ -12,7 +12,6 @@ from goblincommander.menus import show_game_menu, show_main_menu, show_raid_menu
 from goblincommander.settlements import Settlement, NomadEncampment, QuietVillage, BusyTown, BustlingCity, \
     GleamingCastle
 from goblincommander.stash import Stash
-from goblincommander.stats import StatKey
 
 
 class StateKey(str, Enum):
@@ -57,22 +56,22 @@ def raid(horde: Horde, settlement: Settlement) -> Settlement:
 
     # TODO: Refactor this process for testability
 
-    horde_beef = horde.get_stat_sum(StatKey.BEEF)
+    horde_beef = horde.get_total_beef()
 
-    militia_beef = settlement.militia.get_stat_sum(StatKey.BEEF)
-    militia_cunning = settlement.militia.get_stat_sum(StatKey.CUNNING)
+    militia_beef = settlement.militia.get_total_beef()
+    militia_cunning = settlement.militia.get_total_cunning()
 
     print(settlement.description)
 
     print(f"\nBase horde Beef: {horde_beef:.2f}")
     print(f"Base militia Beef: {militia_beef:.2f}\n")
 
-    if horde.get_stat_avg(StatKey.REPUTATION) > 4.5:
+    if horde.get_avg_reputation() > 4.5:
         print(f"[REP] The {settlement.name} defense is losing their wits in the face of your famous might. ", end="")
         console.print_styled(f"(-{militia_cunning * 0.3:.2f} militia Cunning)", console.ConsoleColor.GREEN)
         militia_cunning *= 0.7
 
-    if horde.get_stat_avg(StatKey.QUICKNESS) > settlement.militia.get_stat_avg(StatKey.QUICKNESS):
+    if horde.get_avg_quickness() > settlement.militia.get_avg_quickness():
         print(
             f"[QCK] Your speedy horde got the drop on the {settlement.name} defenses! You've caught them unprepared. ",
             end="")
@@ -89,7 +88,7 @@ def raid(horde: Horde, settlement: Settlement) -> Settlement:
             horde_beef *= 0.9
 
     # Need to use local militia cunning to allow for modification
-    if settlement.scouted or horde.get_stat_avg(StatKey.CUNNING) > militia_cunning / len(settlement.militia.members):
+    if settlement.scouted or horde.get_avg_cunning() > militia_cunning / len(settlement.militia.members):
         if settlement.scouted:
             print(f"[CUN] The information from your scouts has given you the tactical edge. ", end="")
         else:
@@ -119,7 +118,7 @@ def raid(horde: Horde, settlement: Settlement) -> Settlement:
 
 
 def raid_menu():
-    print(f"Your horde currently has {state[StateKey.HORDE].get_stat_sum(StatKey.BEEF)} Beef.")
+    print(f"Your horde currently has {state[StateKey.HORDE].get_total_beef()} Beef.")
     selection = show_raid_menu(state[StateKey.SETTLEMENTS])
 
     match selection:
@@ -130,11 +129,11 @@ def raid_menu():
             s = raid(state[StateKey.HORDE], s)
             if s.defeated:
                 print(f"Your successful raid added {s.reward.food} food and {s.reward.gold} gold to the stash.")
-                state[StateKey.STASH].add(s.reward)
+                state[StateKey.STASH] += s.reward
 
 
 def scout_menu():
-    print(f"Your horde currently has {state[StateKey.HORDE].get_stat_sum(StatKey.BEEF)} Beef.")
+    print(f"Your horde currently has {state[StateKey.HORDE].get_total_beef()} Beef.")
     selection = show_scout_menu(state[StateKey.SETTLEMENTS])
 
     match selection:
@@ -143,12 +142,12 @@ def scout_menu():
             console.print_header("scout")
             s.scouted = True
             print(f"Your scouts have gained valuable info about {s.name}:")
-            print(f"Beef: {s.militia.get_stat_sum(StatKey.BEEF)}, "
+            print(f"Beef: {s.militia.get_total_beef()}, "
                   f"reward: {s.reward.food} food, {s.reward.gold} gold")
 
 
 def recruit_goblins(commander: GoblinCommander, horde: Horde):
-    reputation = commander.stats[StatKey.REPUTATION].value
+    reputation = commander.stats.reputation.value
     print()
     if reputation == 5.0:
         print(f"No goblin is more feared or admired than {commander.name} the {commander.adjective}. "
@@ -177,7 +176,7 @@ def recruit_goblins(commander: GoblinCommander, horde: Horde):
 
 
 def recruit_ogres(horde: Horde):
-    if horde.get_stat_avg(StatKey.QUICKNESS) > 6:
+    if horde.get_avg_quickness() > 6:
         print("Your goblins reported communication difficulties, "
               "but they convinced some ogres to return with them regardless.")
     else:
