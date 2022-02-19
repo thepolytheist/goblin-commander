@@ -106,8 +106,10 @@ def show_raid_menu(settlements: list[Settlement]):
 
 
 def show_scout_menu(settlements: list[Settlement]):
-    choices = list((get_raid_menu_description(s), s) for s in settlements
-                   if not s.defeated and s.militia and not s.scouted)
+    valid_settlements = [s for s in settlements if not s.defeated and s.militia and not s.scouted]
+    valid_settlements.sort(key=lambda s: s.expected_beef, reverse=True)
+    descriptions = tabulate([get_raid_menu_description(s) for s in valid_settlements]).splitlines()[1:]
+    choices = list(zip(descriptions, valid_settlements))
     choices.append("Back")
     return process_single_selection_menu([List("scout_menu_selection",
                                                message="Which settlement would you like to scout?",
