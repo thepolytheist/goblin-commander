@@ -145,6 +145,7 @@ def raid(horde: Horde, settlement: Settlement) -> Settlement:
         print(f"Your pitiful horde was defeated by the defenses of {settlement.name}. "
               "Some of them didn't make it back.")
         cull_horde(horde, [Goblin, Ogre, Orc], 3, 5)
+    settlement.scouted = True
     return settlement
 
 
