@@ -4,6 +4,7 @@ from inquirer import List, prompt, Text
 from tabulate import tabulate
 from termcolor import colored
 
+from goblincommander.creatures import GoblinCommander
 from goblincommander.settlements import Settlement
 
 MAIN_MENU_SELECTION = [
@@ -11,7 +12,7 @@ MAIN_MENU_SELECTION = [
          message="What would you like to do, commander?",
          choices=[("NEW GAME", "NEW"),
                   # TODO: Add settings
-                  #"OPTIONS",
+                  # "OPTIONS",
                   "QUIT"],
          carousel=True)
 ]
@@ -103,6 +104,21 @@ def show_raid_menu(settlements: list[Settlement]):
     choices.append("Back")
     return process_single_selection_menu([List("raid_menu_selection",
                                                message="Which settlement would you like to raid?",
+                                               choices=choices,
+                                               carousel=True)])
+
+
+def show_surrender_menu(settlement: Settlement, commander: GoblinCommander):
+    print("As your horde approaches, a lone herald stands before the settlement's defenses.\n\n\"Greetings, Great "
+          f"{commander.name} the {commander.adjective}. We, the humble people of {settlement.name}, acknowledge "
+          "the ferocity of your horde and the wisdom of your leadership. We have food and gold for you to "
+          "plunder, but we also have our lives. Let us prevent bloodshed this day that we may instead spill "
+          f"blood in your service. What say you, mighty {commander.name}?\"\n\nThe herald appears to be offering the "
+          "town's militia in place of their coffers.")
+    choices = [("Bring them into the fold, then. Let's turn them loose on their own kind. (absorb militia)", "accept"),
+               ("We have no use for their lives. (continue raid)", "raid")]
+    return process_single_selection_menu([List("surrender_menu_selection",
+                                               message="What do you think, commander?",
                                                choices=choices,
                                                carousel=True)])
 

@@ -1,3 +1,4 @@
+import random
 import sys
 from enum import Enum
 from random import randint, choices, choice, sample
@@ -7,7 +8,7 @@ from goblincommander import console, creature_groups
 from goblincommander.creature_groups import Horde
 from goblincommander.creatures import Goblin, GoblinCommander, Ogre, Orc, Creature
 from goblincommander.menus import show_game_menu, show_main_menu, show_raid_menu, show_scout_menu, show_name_menu, \
-    show_name_input, show_title_menu
+    show_name_input, show_title_menu, show_surrender_menu
 from goblincommander.printers import print_creature_group, print_title_figure, print_victory_figure
 from goblincommander.settlements import Settlement, NomadEncampment, QuietVillage, BusyTown, BustlingCity, \
     GleamingCastle
@@ -31,6 +32,32 @@ def show_stash():
     print(f"You have {stash.food} food and {stash.gold} gold remaining in your stash.")
     remaining_weeks = min(stash.food // horde_upkeep.food, stash.gold // horde_upkeep.gold)
     print(f"This is enough to keep your horde happy for {remaining_weeks} week(s).")
+
+
+def update_settlements(week_number: int):
+    active_settlements = list(filter(lambda s: not s.defeated, state[StateKey.SETTLEMENTS]))
+    needs_settlements = len(active_settlements) == 0
+    if week_number < 5:
+        if needs_settlements:
+            state[StateKey.SETTLEMENTS].extend([NomadEncampment(), QuietVillage(), QuietVillage()])
+        elif len(active_settlements) < week_number and random.random() > 0.8:
+            state[StateKey.SETTLEMENTS].append(random.choice([NomadEncampment(), QuietVillage()]))
+    elif week_number < 10:
+        if needs_settlements:
+            state[StateKey.SETTLEMENTS].extend([QuietVillage(), QuietVillage(), BusyTown()])
+        elif len(active_settlements) < week_number and random.random() > 0.8:
+            state[StateKey.SETTLEMENTS].append(random.choice([QuietVillage(), BusyTown(), BustlingCity()]))
+    elif week_number < 15:
+        if needs_settlements:
+            state[StateKey.SETTLEMENTS].extend([BusyTown(), BusyTown(), BustlingCity()])
+        elif len(active_settlements) < week_number and random.random() > 0.8:
+            state[StateKey.SETTLEMENTS].append(
+                random.choice([QuietVillage(), BusyTown(), BustlingCity(), GleamingCastle()]))
+    else:
+        if needs_settlements:
+            state[StateKey.SETTLEMENTS].extend([BusyTown(), BustlingCity(), BustlingCity()])
+        elif len(active_settlements) < week_number and random.random() > 0.8:
+            state[StateKey.SETTLEMENTS].append(random.choice([BustlingCity(), GleamingCastle()]))
 
 
 def pass_weeks(n: int, dry_run=False) -> bool:
@@ -59,7 +86,9 @@ def quit_game():
 
 
 def check_for_victory():
-    if any(map(lambda s: not s.defeated, state[StateKey.SETTLEMENTS])):
+    # If not all settlements are defeated or there are no castles, no victory yet
+    if any(map(lambda s: not s.defeated, state[StateKey.SETTLEMENTS])) or all(
+            map(lambda s: not isinstance(s, GleamingCastle), state[StateKey.SETTLEMENTS])):
         return
 
     commander = state[StateKey.COMMANDER]
@@ -106,7 +135,7 @@ def cull_horde(horde: Horde, creature_types: list[Type[Creature]], minimum: int,
         horde.cull(sample(candidate_creatures, k=num_to_cull))
 
 
-def raid(horde: Horde, settlement: Settlement) -> Settlement:
+def raid(horde: Horde, settlement: Settlement) -> None:
     if settlement.defeated or not settlement.militia:
         raise ValueError("Raid target is not a valid settlement for raiding.")
 
@@ -123,6 +152,23 @@ def raid(horde: Horde, settlement: Settlement) -> Settlement:
     print(f"Base militia Beef: {militia_beef:.2f}\n")
 
     if horde.get_avg_reputation() > 4.5:
+        if settlement.militia.get_avg_cunning() > 7.0:
+            surrender_choice = show_surrender_menu(settlement, state[StateKey.COMMANDER])
+            match surrender_choice:
+                case "accept":
+                    console.print_header("victory", console.ConsoleColor.GREEN)
+                    print(f"The {len(settlement.militia.members)} men of {settlement.name}'s "
+                          "militia have joined your horde!")
+                    horde.bolster(settlement.militia.members)
+                    settlement.defeated = True
+                    settlement.scouted = True
+                    settlement.militia.members = []
+                    for creature in state[StateKey.HORDE].members:
+                        creature.stats.reputation.value = min(creature.stats.reputation.value + settlement.reputation,
+                                                              5.0)
+                    check_for_victory()
+                    return
+
         print(f"[REP] The {settlement.name} defense is losing their wits in the face of your famous might. ", end="")
         console.print_styled(f"(-{militia_cunning * 0.3:.2f} militia Cunning)", console.ConsoleColor.GREEN)
         militia_cunning *= 0.7
@@ -165,13 +211,21 @@ def raid(horde: Horde, settlement: Settlement) -> Settlement:
         settlement.defeated = True
         settlement.militia.members = []
         add_members_to_horde(horde, Goblin, 1, 3)
+        print(f"Your successful raid added {settlement.reward.food} food "
+              f"and {settlement.reward.gold} gold to the stash.")
+        state[StateKey.STASH] += settlement.reward
+        for creature in state[StateKey.HORDE].members:
+            creature.stats.reputation.value = min(creature.stats.reputation.value + settlement.reputation, 5.0)
+        check_for_victory()
     else:
         console.print_styled("DEFEAT", console.ConsoleColor.RED)
         print(f"Your pitiful horde was defeated by the defenses of {settlement.name}. "
               "Some of them didn't make it back.")
         cull_horde(horde, [Goblin, Ogre, Orc], 3, 5)
+        for creature in state[StateKey.HORDE].members:
+            creature.stats.reputation.value = max(creature.stats.reputation.value - settlement.reputation,
+                                                  0.0)
     settlement.scouted = True
-    return settlement
 
 
 def raid_menu():
@@ -180,16 +234,12 @@ def raid_menu():
 
     match selection:
         case Settlement() as s:
-            pass_weeks(1)
+            pass_weeks(1, dry_run=True)
             console.print_header("raid")
             print(f"You've chosen to raid {s.name}.")
-            s = raid(state[StateKey.HORDE], s)
-            if s.defeated:
-                print(f"Your successful raid added {s.reward.food} food and {s.reward.gold} gold to the stash.")
-                state[StateKey.STASH] += s.reward
-                for creature in state[StateKey.HORDE].members:
-                    creature.stats.reputation.value = min(creature.stats.reputation.value + s.reputation, 5.0)
-                check_for_victory()
+            raid(state[StateKey.HORDE], s)
+            pass_weeks(1)
+            update_settlements(state[StateKey.WEEK])
 
 
 def scout_menu():
@@ -324,9 +374,9 @@ def new_game():
     name_menu()
 
     # Generate settlements
-    generated_settlement_types = choices([NomadEncampment, QuietVillage, BusyTown, BustlingCity, GleamingCastle],
-                                         cum_weights=[15, 40, 85, 95, 100],
-                                         k=randint(15, 25))
+    generated_settlement_types = choices([NomadEncampment, QuietVillage, BusyTown],
+                                         cum_weights=[55, 90, 100],
+                                         k=randint(5, 10))
     state[StateKey.SETTLEMENTS] = [settlement_type() for settlement_type in generated_settlement_types]
 
     # Generate horde
