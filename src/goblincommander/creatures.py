@@ -226,11 +226,13 @@ class Human(Creature):
     MINIMUM_QUICKNESS = 1
     MAXIMUM_QUICKNESS = 6
 
-    FOOD_UPKEEP = 10
+    FOOD_UPKEEP = 8
     GOLD_UPKEEP = 4
 
     # Human descriptive data
-    name_options = ["Paul", "Harold", "Jimbo", "Willy", "Mark"]
+    human_data = json.loads(files(goblincommander.resources).joinpath('human_data.json').read_text())
+    name_options = human_data["name_options"]
+    del human_data
 
     def __init__(self):
         if not Human.name_options:
