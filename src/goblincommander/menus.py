@@ -8,9 +8,11 @@ from goblincommander.settlements import Settlement
 
 MAIN_MENU_SELECTION = [
     List("main_menu_selection",
-         message="Welcome",
-         choices=["NEW",
-                  "OPTIONS"],
+         message="What would you like to do, commander?",
+         choices=[("NEW GAME", "NEW"),
+                  # TODO: Add settings
+                  #"OPTIONS",
+                  "QUIT"],
          carousel=True)
 ]
 
@@ -41,7 +43,7 @@ GAME_MENU_SELECTION = [
                   ("Recruit orcs (4 weeks)", "recruit_orcs"),
                   ("View horde", "view_horde"),
                   ("View your profile", "view_profile"),
-                  ("Quit", "quit")],
+                  ("Return to main menu", "quit")],
          carousel=True)
 ]
 

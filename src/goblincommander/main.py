@@ -69,7 +69,7 @@ def check_for_victory():
     print(f"The horde of {commander.name} the {commander.adjective} has swarmed over the land, "
           f"conquering {len(state[StateKey.SETTLEMENTS])} settlements in {state[StateKey.WEEK]} weeks.")
     print(f"\nYour horde had {stash.food} food and {stash.gold} gold remaining.")
-    quit_game()
+    main_menu()
 
 
 def add_members_to_horde(horde: Horde, creature_type: Type[Creature], minimum: int, maximum: int) -> None:
@@ -285,7 +285,7 @@ def game_menu():
             print()
             show_stash()
         case "quit":
-            quit_game()
+            main_menu()
         case _:
             print("Please select a different option.\n")
 
@@ -352,6 +352,8 @@ def main_menu():
     match selection:
         case "NEW":
             new_game()
+        case "QUIT":
+            quit_game()
         case _:
             print("Please select a different option.\n")
             main_menu()
