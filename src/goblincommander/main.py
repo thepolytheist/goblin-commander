@@ -35,30 +35,36 @@ def show_stash():
         print(f"This is enough to keep your horde happy for {remaining_weeks} week(s).")
 
 
+def add_minimum_settlements(week_number: int):
+    if week_number < 5:
+        state[StateKey.SETTLEMENTS].extend([NomadEncampment(), QuietVillage(), QuietVillage()])
+    elif week_number < 10:
+        state[StateKey.SETTLEMENTS].extend([QuietVillage(), QuietVillage(), BusyTown()])
+    elif week_number < 15:
+        state[StateKey.SETTLEMENTS].extend([BusyTown(), BusyTown(), BustlingCity()])
+    else:
+        state[StateKey.SETTLEMENTS].extend([BusyTown(), BustlingCity(), BustlingCity()])
+
+
+def add_random_settlement(week_number: int):
+    if week_number < 5:
+        state[StateKey.SETTLEMENTS].append(random.choice([NomadEncampment(), QuietVillage()]))
+    elif week_number < 10:
+        state[StateKey.SETTLEMENTS].append(random.choice([QuietVillage(), BusyTown(), BustlingCity()]))
+    elif week_number < 15:
+        state[StateKey.SETTLEMENTS].append(
+            random.choice([QuietVillage(), BusyTown(), BustlingCity(), GleamingCastle()]))
+    else:
+        state[StateKey.SETTLEMENTS].append(random.choice([BustlingCity(), GleamingCastle()]))
+
+
 def update_settlements(week_number: int):
     active_settlements = list(filter(lambda s: not s.defeated, state[StateKey.SETTLEMENTS]))
     needs_settlements = len(active_settlements) == 0
-    if week_number < 5:
-        if needs_settlements:
-            state[StateKey.SETTLEMENTS].extend([NomadEncampment(), QuietVillage(), QuietVillage()])
-        elif len(active_settlements) < week_number and random.random() > 0.8:
-            state[StateKey.SETTLEMENTS].append(random.choice([NomadEncampment(), QuietVillage()]))
-    elif week_number < 10:
-        if needs_settlements:
-            state[StateKey.SETTLEMENTS].extend([QuietVillage(), QuietVillage(), BusyTown()])
-        elif len(active_settlements) < week_number and random.random() > 0.8:
-            state[StateKey.SETTLEMENTS].append(random.choice([QuietVillage(), BusyTown(), BustlingCity()]))
-    elif week_number < 15:
-        if needs_settlements:
-            state[StateKey.SETTLEMENTS].extend([BusyTown(), BusyTown(), BustlingCity()])
-        elif len(active_settlements) < week_number and random.random() > 0.8:
-            state[StateKey.SETTLEMENTS].append(
-                random.choice([QuietVillage(), BusyTown(), BustlingCity(), GleamingCastle()]))
-    else:
-        if needs_settlements:
-            state[StateKey.SETTLEMENTS].extend([BusyTown(), BustlingCity(), BustlingCity()])
-        elif len(active_settlements) < week_number and random.random() > 0.8:
-            state[StateKey.SETTLEMENTS].append(random.choice([BustlingCity(), GleamingCastle()]))
+    if needs_settlements:
+        add_minimum_settlements(week_number)
+    elif len(active_settlements) < week_number and random.random() > 0.8:
+        add_random_settlement(week_number)
 
 
 def pass_weeks(n: int, dry_run=False) -> bool:
@@ -327,6 +333,19 @@ def game_menu():
             console.print_header("recruit")
             if pass_weeks(4):
                 recruit_orcs(state[StateKey.HORDE])
+        case "explore":
+            add_random_settlement(state[StateKey.WEEK])
+        case "cull_horde":
+            horde = state[StateKey.HORDE]
+            cull_count = len(horde.members) // 10
+            if cull_count > 0:
+                print("You can't let this many creatures get their mitts on your stash. We're kicking out the weakest "
+                      f"{cull_count} members of the horde.")
+                horde.members.sort(key=lambda c: c.stats.beef.value, reverse=True)
+                upkeep = state[StateKey.HORDE].get_upkeep()
+                stash = state[StateKey.STASH]
+                while upkeep.food > stash.food or upkeep.gold > stash.gold:
+                    state[StateKey.HORDE].members = horde.members[:-cull_count]
         case "view_horde":
             console.clear()
             print_creature_group(state[StateKey.HORDE])
