@@ -62,12 +62,26 @@ def process_single_selection_menu(selection_config: list[List]):
     return response[selection_config[0].name]
 
 
-def show_main_menu():
-    return process_single_selection_menu(MAIN_MENU_SELECTION)
+def show_main_menu(*, new_game_fn, quit_fn):
+    selection = process_single_selection_menu(MAIN_MENU_SELECTION)
+    match selection:
+        case "NEW":
+            new_game_fn()
+        case "QUIT":
+            quit_fn()
+        case _:
+            print("Please select a different option.\n")
+            show_main_menu(new_game_fn=new_game_fn, quit_fn=quit_fn)
 
 
-def show_name_menu():
-    return process_single_selection_menu(NAME_MENU_SELECTION)
+def show_name_menu(*, random_name: str) -> str:
+    selection = process_single_selection_menu(NAME_MENU_SELECTION)
+    name = random_name
+    match selection:
+        case "enter":
+            name = show_name_input(random_name)
+
+    return name
 
 
 def show_name_input(random_name: str):
@@ -80,8 +94,32 @@ def show_title_menu():
     return process_single_selection_menu(TITLE_MENU_SELECTION)
 
 
-def show_game_menu():
-    return process_single_selection_menu(GAME_MENU_SELECTION)
+def show_game_menu(*, raid_fn, scout_fn, recruit_goblins_fn, recruit_ogres_fn, recruit_orcs_fn, explore_fn,
+                   cull_horde_fn, view_horde_fn, view_profile_fn, quit_fn):
+    selection = process_single_selection_menu(GAME_MENU_SELECTION)
+    match selection:
+        case "raid":
+            raid_fn()
+        case "scout":
+            scout_fn()
+        case "recruit_goblins":
+            recruit_goblins_fn()
+        case "recruit_ogres":
+            recruit_ogres_fn()
+        case "recruit_orcs":
+            recruit_orcs_fn()
+        case "explore":
+            explore_fn()
+        case "cull_horde":
+            cull_horde_fn()
+        case "view_horde":
+            view_horde_fn()
+        case "view_profile":
+            view_profile_fn()
+        case "quit":
+            quit_fn()
+        case _:
+            print("Please select a different option.\n")
 
 
 def get_raid_menu_description(settlement: Settlement) -> tuple[str, str, str]:
@@ -98,16 +136,20 @@ def get_raid_menu_description(settlement: Settlement) -> tuple[str, str, str]:
     return description, guards, colored(report, attrs=['dark'])
 
 
-def show_raid_menu(settlements: list[Settlement]):
+def show_raid_menu(current_beef:int, settlements: list[Settlement], *, raid_fn):
+    print(f"Your horde currently has {current_beef} Beef.")
     valid_settlements = [s for s in settlements if not s.defeated and s.militia]
     valid_settlements.sort(key=lambda s: s.expected_beef, reverse=True)
     descriptions = tabulate([get_raid_menu_description(s) for s in valid_settlements]).splitlines()[1:]
     choices = list(zip(descriptions, valid_settlements))
     choices.append("Back")
-    return process_single_selection_menu([List("raid_menu_selection",
+    selection = process_single_selection_menu([List("raid_menu_selection",
                                                message="Which settlement would you like to raid?",
                                                choices=choices,
                                                carousel=True)])
+    match selection:
+        case Settlement() as s:
+            raid_fn(s)
 
 
 def show_surrender_menu(settlement: Settlement, commander: GoblinCommander):
@@ -122,16 +164,20 @@ def show_surrender_menu(settlement: Settlement, commander: GoblinCommander):
     return process_single_selection_menu([List("surrender_menu_selection",
                                                message="What do you think, commander?",
                                                choices=choices,
-                                               carousel=True)])
+                                               carousel=True)]) == "accept"
 
 
-def show_scout_menu(settlements: list[Settlement]):
+def show_scout_menu(current_beef: int, settlements: list[Settlement], *, scout_fn):
+    print(f"Your horde currently has {current_beef} Beef.")
     valid_settlements = [s for s in settlements if not s.defeated and s.militia and not s.scouted]
     valid_settlements.sort(key=lambda s: s.expected_beef, reverse=True)
     descriptions = tabulate([get_raid_menu_description(s) for s in valid_settlements]).splitlines()[1:]
     choices = list(zip(descriptions, valid_settlements))
     choices.append("Back")
-    return process_single_selection_menu([List("scout_menu_selection",
+    selection = process_single_selection_menu([List("scout_menu_selection",
                                                message="Which settlement would you like to scout?",
                                                choices=choices,
                                                carousel=True)])
+    match selection:
+        case Settlement() as s:
+            scout_fn(s)

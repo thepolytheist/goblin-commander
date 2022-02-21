@@ -4,11 +4,9 @@ from enum import Enum
 from random import randint, choices, choice, sample
 from typing import Any, Type
 
-from goblincommander import console, creature_groups
+from goblincommander import console, creature_groups, menus
 from goblincommander.creature_groups import Horde
 from goblincommander.creatures import Goblin, GoblinCommander, Ogre, Orc, Creature
-from goblincommander.menus import show_game_menu, show_main_menu, show_raid_menu, show_scout_menu, show_name_menu, \
-    show_name_input, show_title_menu, show_surrender_menu
 from goblincommander.printers import print_creature_group, print_title_figure, print_victory_figure
 from goblincommander.settlements import Settlement, NomadEncampment, QuietVillage, BusyTown, BustlingCity, \
     GleamingCastle
@@ -142,7 +140,7 @@ def cull_horde(horde: Horde, creature_types: list[Type[Creature]], minimum: int,
         horde.cull(sample(candidate_creatures, k=num_to_cull))
 
 
-def raid(horde: Horde, settlement: Settlement) -> None:
+def _raid(horde: Horde, settlement: Settlement) -> None:
     if settlement.defeated or not settlement.militia:
         raise ValueError("Raid target is not a valid settlement for raiding.")
 
@@ -160,21 +158,20 @@ def raid(horde: Horde, settlement: Settlement) -> None:
 
     if horde.get_avg_reputation() > 4.5:
         if settlement.militia.get_avg_cunning() > 7.0:
-            surrender_choice = show_surrender_menu(settlement, state[StateKey.COMMANDER])
-            match surrender_choice:
-                case "accept":
-                    console.print_header("victory", console.ConsoleColor.GREEN)
-                    print(f"The {len(settlement.militia.members)} men of {settlement.name}'s "
-                          "militia have joined your horde!")
-                    horde.bolster(settlement.militia.members)
-                    settlement.defeated = True
-                    settlement.scouted = True
-                    settlement.militia.members = []
-                    for creature in state[StateKey.HORDE].members:
-                        creature.stats.reputation.value = min(creature.stats.reputation.value + settlement.reputation,
-                                                              5.0)
-                    check_for_victory()
-                    return
+            accepted_surrender = menus.show_surrender_menu(settlement, state[StateKey.COMMANDER])
+            if accepted_surrender:
+                console.print_header("victory", console.ConsoleColor.GREEN)
+                print(f"The {len(settlement.militia.members)} men of {settlement.name}'s "
+                      "militia have joined your horde!")
+                horde.bolster(settlement.militia.members)
+                settlement.defeated = True
+                settlement.scouted = True
+                settlement.militia.members = []
+                for creature in state[StateKey.HORDE].members:
+                    creature.stats.reputation.value = min(creature.stats.reputation.value + settlement.reputation,
+                                                          5.0)
+                check_for_victory()
+                return
 
         print(f"[REP] The {settlement.name} defense is losing their wits in the face of your famous might. ", end="")
         console.print_styled(f"(-{militia_cunning * 0.3:.2f} militia Cunning)", console.ConsoleColor.GREEN)
@@ -235,32 +232,22 @@ def raid(horde: Horde, settlement: Settlement) -> None:
     settlement.scouted = True
 
 
-def raid_menu():
-    print(f"Your horde currently has {state[StateKey.HORDE].get_total_beef()} Beef.")
-    selection = show_raid_menu(state[StateKey.SETTLEMENTS])
-
-    match selection:
-        case Settlement() as s:
-            pass_weeks(1, dry_run=True)
-            console.print_header("raid")
-            print(f"You've chosen to raid {s.name}.")
-            raid(state[StateKey.HORDE], s)
-            pass_weeks(1)
-            update_settlements(state[StateKey.WEEK])
+def raid(s: Settlement):
+    pass_weeks(1, dry_run=True)
+    console.print_header("raid")
+    print(f"You've chosen to raid {s.name}.")
+    _raid(state[StateKey.HORDE], s)
+    pass_weeks(1)
+    update_settlements(state[StateKey.WEEK])
 
 
-def scout_menu():
-    print(f"Your horde currently has {state[StateKey.HORDE].get_total_beef()} Beef.")
-    selection = show_scout_menu(state[StateKey.SETTLEMENTS])
-
-    match selection:
-        case Settlement() as s:
-            pass_weeks(1)
-            console.print_header("scout")
-            s.scouted = True
-            print(f"Your scouts have gained valuable info about {s.name}:")
-            print(f"Beef: {s.militia.get_total_beef()}, "
-                  f"reward: {s.reward.food} food, {s.reward.gold} gold")
+def scout(settlement: Settlement):
+    pass_weeks(1)
+    console.print_header("scout")
+    settlement.scouted = True
+    print(f"Your scouts have gained valuable info about {settlement.name}:")
+    print(f"Beef: {settlement.militia.get_total_beef()}, "
+          f"reward: {settlement.reward.food} food, {settlement.reward.gold} gold")
 
 
 def recruit_goblins(commander: GoblinCommander, horde: Horde):
@@ -307,74 +294,84 @@ def recruit_orcs(horde: Horde):
     add_members_to_horde(horde, Orc, 4, 6)
 
 
+def raid_fn():
+    if pass_weeks(1, dry_run=True):
+        menus.show_raid_menu(state[StateKey.HORDE].get_total_beef(), state[StateKey.SETTLEMENTS], raid_fn=raid)
+
+
+def scout_fn():
+    if pass_weeks(1, dry_run=True):
+        menus.show_scout_menu(state[StateKey.HORDE].get_total_beef(), state[StateKey.SETTLEMENTS], scout_fn=scout)
+
+
+def recruit_goblins_fn():
+    console.print_header("recruit")
+    if pass_weeks(2):
+        recruit_goblins(state[StateKey.COMMANDER], state[StateKey.HORDE])
+
+
+def recruit_ogres_fn():
+    console.print_header("recruit")
+    if pass_weeks(2):
+        recruit_ogres(state[StateKey.HORDE])
+
+
+def recruit_orcs_fn():
+    console.print_header("recruit")
+    if pass_weeks(4):
+        recruit_orcs(state[StateKey.HORDE])
+
+
+def explore_fn():
+    add_random_settlement(state[StateKey.WEEK])
+
+
+def cull_horde_fn():
+    horde = state[StateKey.HORDE]
+    cull_count = len(horde.members) // 10
+    if cull_count > 0:
+        print("You can't let this many creatures get their mitts on your stash. We're kicking out the weakest "
+              f"{cull_count} members of the horde.")
+        horde.members.sort(key=lambda c: c.stats.beef.value, reverse=True)
+        state[StateKey.HORDE].members = horde.members[:-cull_count]
+
+
+def view_horde_fn():
+    console.clear()
+    print_creature_group(state[StateKey.HORDE])
+
+
+def view_profile_fn():
+    console.clear()
+    state[StateKey.COMMANDER].print_profile()
+    print()
+    show_stash()
+
+
 def game_menu():
     print(f"\nWeek {state[StateKey.WEEK]}")
     show_stash()
-    selection = show_game_menu()
-
-    match selection:
-        case "raid":
-            # This needs to be a check only since there's a submenu
-            if pass_weeks(1, dry_run=True):
-                raid_menu()
-        case "scout":
-            # This needs to be a check only since there's a submenu
-            if pass_weeks(1, dry_run=True):
-                scout_menu()
-        case "recruit_goblins":
-            console.print_header("recruit")
-            if pass_weeks(2):
-                recruit_goblins(state[StateKey.COMMANDER], state[StateKey.HORDE])
-        case "recruit_ogres":
-            console.print_header("recruit")
-            if pass_weeks(2):
-                recruit_ogres(state[StateKey.HORDE])
-        case "recruit_orcs":
-            console.print_header("recruit")
-            if pass_weeks(4):
-                recruit_orcs(state[StateKey.HORDE])
-        case "explore":
-            add_random_settlement(state[StateKey.WEEK])
-        case "cull_horde":
-            horde = state[StateKey.HORDE]
-            cull_count = len(horde.members) // 10
-            if cull_count > 0:
-                print("You can't let this many creatures get their mitts on your stash. We're kicking out the weakest "
-                      f"{cull_count} members of the horde.")
-                horde.members.sort(key=lambda c: c.stats.beef.value, reverse=True)
-                state[StateKey.HORDE].members = horde.members[:-cull_count]
-        case "view_horde":
-            console.clear()
-            print_creature_group(state[StateKey.HORDE])
-        case "view_profile":
-            console.clear()
-            state[StateKey.COMMANDER].print_profile()
-            print()
-            show_stash()
-        case "quit":
-            main_menu()
-        case _:
-            print("Please select a different option.\n")
+    menus.show_game_menu(
+        raid_fn=raid_fn,
+        scout_fn=scout_fn,
+        recruit_goblins_fn=recruit_goblins_fn,
+        recruit_ogres_fn=recruit_ogres_fn,
+        recruit_orcs_fn=recruit_orcs_fn,
+        explore_fn=explore_fn,
+        cull_horde_fn=cull_horde_fn,
+        view_horde_fn=view_horde_fn,
+        view_profile_fn=view_profile_fn,
+        quit_fn=main_menu
+    )
 
     game_menu()
 
 
 def name_menu():
-    name_selection = show_name_menu()
-
-    random_name = choice(Goblin.name_options)
-
-    match name_selection:
-        case "enter":
-            name = show_name_input(random_name)
-        case "random":
-            name = random_name
-
+    name = menus.show_name_menu(random_name=choice(Goblin.name_options))
     print(f"\nAll right. {name} it is.")
-
-    title_selection = show_title_menu()
-
-    state[StateKey.COMMANDER] = GoblinCommander(name, title_selection)
+    title = menus.show_title_menu()
+    state[StateKey.COMMANDER] = GoblinCommander(name, title)
 
     console.clear()
 
@@ -413,17 +410,7 @@ def new_game():
 
 
 def main_menu():
-    selection = show_main_menu()
-    # TODO: add save/load system
-
-    match selection:
-        case "NEW":
-            new_game()
-        case "QUIT":
-            quit_game()
-        case _:
-            print("Please select a different option.\n")
-            main_menu()
+    menus.show_main_menu(new_game_fn=new_game, quit_fn=quit_game)
 
 
 def main():
