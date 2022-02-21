@@ -342,10 +342,7 @@ def game_menu():
                 print("You can't let this many creatures get their mitts on your stash. We're kicking out the weakest "
                       f"{cull_count} members of the horde.")
                 horde.members.sort(key=lambda c: c.stats.beef.value, reverse=True)
-                upkeep = state[StateKey.HORDE].get_upkeep()
-                stash = state[StateKey.STASH]
-                while upkeep.food > stash.food or upkeep.gold > stash.gold:
-                    state[StateKey.HORDE].members = horde.members[:-cull_count]
+                state[StateKey.HORDE].members = horde.members[:-cull_count]
         case "view_horde":
             console.clear()
             print_creature_group(state[StateKey.HORDE])
