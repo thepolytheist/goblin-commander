@@ -323,7 +323,8 @@ def recruit_orcs_fn():
 
 
 def explore_fn():
-    add_random_settlement(state[StateKey.WEEK])
+    if pass_weeks(1):
+        add_random_settlement(state[StateKey.WEEK])
 
 
 def cull_horde_fn():
