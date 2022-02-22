@@ -3,6 +3,7 @@ from tabulate import tabulate
 
 from goblincommander import console
 from goblincommander.creature_groups import CreatureGroup
+from goblincommander.creatures import GoblinCommander
 
 
 def print_title_figure(text):
@@ -44,3 +45,13 @@ def print_creature_group(group: CreatureGroup) -> None:
                    tablefmt="plain",
                    floatfmt="3.2f"))
     print("\n*Averages include your stats")
+
+
+def print_profile(commander: GoblinCommander):
+    print(tabulate([[commander.name, commander.adjective,
+                     str(commander.stats.beef.value),
+                     str(commander.stats.cunning.value),
+                     str(commander.stats.quickness.value),
+                     str(commander.stats.reputation.value)]],
+                   headers=["Name", "Title", "Beef", "Cunning", "Quickness", "Reputation"],
+                   floatfmt=("", "", "", "", "", "3.2f")))

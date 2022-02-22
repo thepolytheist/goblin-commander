@@ -7,7 +7,7 @@ from typing import Any, Type
 from goblincommander import console, creature_groups, menus
 from goblincommander.creature_groups import Horde
 from goblincommander.creatures import Goblin, GoblinCommander, Ogre, Orc, Creature
-from goblincommander.printers import print_creature_group, print_title_figure, print_victory_figure
+from goblincommander.printers import print_creature_group, print_profile, print_title_figure, print_victory_figure
 from goblincommander.settlements import Settlement, NomadEncampment, QuietVillage, BusyTown, BustlingCity, \
     GleamingCastle
 from goblincommander.stash import Stash
@@ -344,7 +344,7 @@ def view_horde_fn():
 
 def view_profile_fn():
     console.clear()
-    state[StateKey.COMMANDER].print_profile()
+    print_profile(state[StateKey.COMMANDER])
     print()
     show_stash()
 

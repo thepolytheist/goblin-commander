@@ -3,8 +3,6 @@ from importlib.resources import files
 from random import choice, randint
 from typing import Optional
 
-from tabulate import tabulate
-
 import goblincommander.resources
 from goblincommander.stats import Stats
 from goblincommander.upkeep import Upkeep
@@ -204,15 +202,6 @@ class GoblinCommander(Goblin):
                 stats.reputation.value += 2.0
 
         super().__init__(name, title, stats, Upkeep(0, 0), True)
-
-    def print_profile(self):
-        print(tabulate([[self.name, self.adjective,
-                         str(self.stats.beef.value),
-                         str(self.stats.cunning.value),
-                         str(self.stats.quickness.value),
-                         str(self.stats.reputation.value)]],
-                       headers=["Name", "Title", "Beef", "Cunning", "Quickness", "Reputation"],
-                       floatfmt=("", "", "", "", "", "3.2f")))
 
 
 class Human(Creature):
