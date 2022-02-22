@@ -2,7 +2,6 @@ import sys
 
 from inquirer import List, prompt, Text
 from tabulate import tabulate
-from termcolor import colored
 
 from goblincommander.creatures import GoblinCommander
 from goblincommander.settlements import Settlement
@@ -133,10 +132,11 @@ def get_raid_menu_description(settlement: Settlement) -> tuple[str, str, str]:
         report = f"(expected Beef: {settlement.expected_beef}, " \
                  f"expected reward: {settlement.expected_food} food, {settlement.expected_gold} gold)"
 
-    return description, guards, colored(report, attrs=['dark'])
+    # TODO: Re-style menu
+    return description, guards, report
 
 
-def show_raid_menu(current_beef:int, settlements: list[Settlement], *, raid_fn):
+def show_raid_menu(current_beef: int, settlements: list[Settlement], *, raid_fn):
     print(f"Your horde currently has {current_beef} Beef.")
     valid_settlements = [s for s in settlements if not s.defeated and s.militia]
     valid_settlements.sort(key=lambda s: s.expected_beef, reverse=True)
@@ -144,9 +144,9 @@ def show_raid_menu(current_beef:int, settlements: list[Settlement], *, raid_fn):
     choices = list(zip(descriptions, valid_settlements))
     choices.append("Back")
     selection = process_single_selection_menu([List("raid_menu_selection",
-                                               message="Which settlement would you like to raid?",
-                                               choices=choices,
-                                               carousel=True)])
+                                                    message="Which settlement would you like to raid?",
+                                                    choices=choices,
+                                                    carousel=True)])
     match selection:
         case Settlement() as s:
             raid_fn(s)
@@ -175,9 +175,9 @@ def show_scout_menu(current_beef: int, settlements: list[Settlement], *, scout_f
     choices = list(zip(descriptions, valid_settlements))
     choices.append("Back")
     selection = process_single_selection_menu([List("scout_menu_selection",
-                                               message="Which settlement would you like to scout?",
-                                               choices=choices,
-                                               carousel=True)])
+                                                    message="Which settlement would you like to scout?",
+                                                    choices=choices,
+                                                    carousel=True)])
     match selection:
         case Settlement() as s:
             scout_fn(s)

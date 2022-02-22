@@ -2,7 +2,7 @@ import os
 from enum import Enum
 from typing import Optional, Callable
 
-from termcolor import colored
+from rich import print
 
 
 class ConsoleColor(str, Enum):
@@ -16,11 +16,18 @@ def clear():
     os.system('cls' if os.name == 'nt' else 'clear')
 
 
+def styled(text: str, *, color: Optional[ConsoleColor] = None):
+    if color is None:
+        return text
+
+    return f"[{color}]{text}[/{color}]"
+
+
 def print_styled(text: str, color: Optional[ConsoleColor] = None, transformer: Optional[Callable[[str], str]] = None):
     if transformer is not None:
         text = transformer(text)
 
-    print(colored(text, color))
+    print(styled(text, color=color))
 
 
 def print_header(header: str, color: Optional[ConsoleColor] = None):
